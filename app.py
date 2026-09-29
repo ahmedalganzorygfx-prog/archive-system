@@ -1202,7 +1202,7 @@ elif st.session_state.page == "السجلات":
                 expander_title
             ):
 
-    st.markdown(
+st.markdown(
     f"""
     <div class="info-card">
 
@@ -1234,7 +1234,6 @@ elif st.session_state.page == "السجلات":
     """,
     unsafe_allow_html=True
 )
-
                 if row["file_path"]:
 
                     file_path = Path(
