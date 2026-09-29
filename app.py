@@ -17,6 +17,47 @@ st.set_page_config(
 )
 
 # ==========================================
+# حماية البرنامج بكلمة مرور
+# ==========================================
+
+APP_PASSWORD = "1234"  # غيّر كلمة المرور من هنا
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.markdown(
+        '''
+        <div style="
+            text-align:center;
+            margin-top: 80px;
+            direction:rtl;
+        ">
+            <h2 style="color:#17365d;">منظومة الوارد والصادر</h2>
+            <p style="color:#294d7c;">الأكاديمية المهنية للمعلمين – فرع الجيزة</p>
+        </div>
+        ''',
+        unsafe_allow_html=True
+    )
+
+    password = st.text_input(
+        "كلمة المرور",
+        type="password",
+        placeholder="أدخل كلمة المرور",
+        key="login_password"
+    )
+
+    if st.button("🔐 دخول إلى البرنامج", type="primary", use_container_width=True):
+        if password == APP_PASSWORD:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("كلمة المرور غير صحيحة.")
+
+    st.stop()
+
+
+# ==========================================
 # المسارات
 # ==========================================
 
@@ -51,10 +92,27 @@ html, body, [class*="css"] {
     text-align: right;
 }
 
+/* إخفاء شريط أدوات Streamlit العلوي */
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+#MainMenu,
+footer {
+    visibility: hidden !important;
+    display: none !important;
+}
+
+/* منع ظهور مساحة شريط الأدوات المخفية */
+header {
+    visibility: hidden !important;
+    height: 0 !important;
+}
+
+
 .block-container {
     max-width: 850px;
     width: 95%;
-    padding-top: 1rem;
+    padding-top: 5rem;
     padding-bottom: 2rem;
 }
 
@@ -311,7 +369,7 @@ if LOGO_PATH.exists():
     with center_col:
         st.image(
             str(LOGO_PATH),
-            width=160
+            width=140
         )
 
 else:
