@@ -62,10 +62,6 @@ st.markdown(
     """
     <style>
 
-    /* ======================================================
-       الصفحة العامة
-       ====================================================== */
-
     html,
     body {
         margin: 0 !important;
@@ -83,17 +79,10 @@ st.markdown(
     .block-container {
         max-width: 900px !important;
         width: 94% !important;
-
         padding-top: 10px !important;
         padding-bottom: 25px !important;
-
         margin: 0 auto !important;
     }
-
-
-    /* ======================================================
-       إخفاء عناصر Streamlit العلوية
-       ====================================================== */
 
     header,
     [data-testid="stHeader"],
@@ -107,184 +96,108 @@ st.markdown(
         height: 0 !important;
     }
 
-
-    /* ======================================================
-       شاشة تسجيل الدخول
-       ====================================================== */
-
     .login-container {
         width: 100%;
-
         display: flex;
         flex-direction: column;
-
         align-items: center;
         justify-content: flex-start;
-
         text-align: center;
-
         padding-top: 10px;
         padding-bottom: 20px;
-
         margin: 0 auto;
     }
 
-
-    /* ======================================================
-       اللوجو في شاشة الدخول
-       ====================================================== */
-
     .login-logo-container {
         width: 100%;
-
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-
         text-align: center !important;
-
         margin: 0 auto 12px auto !important;
         padding: 0 !important;
     }
 
     .login-logo-container img {
         display: block !important;
-
         width: 180px !important;
         height: 180px !important;
-
         object-fit: contain;
-
         margin-left: auto !important;
         margin-right: auto !important;
-
         position: relative !important;
         left: auto !important;
         right: auto !important;
     }
 
-
-    /* ======================================================
-       عنوان شاشة الدخول
-       ====================================================== */
-
     .login-main-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #17365d;
-
         font-size: 32px;
         font-weight: 900;
-
         line-height: 1.5;
-
         margin: 0 auto 4px auto;
     }
 
     .login-sub-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #294d7c;
-
         font-size: 21px;
         font-weight: 700;
-
         line-height: 1.5;
-
         margin: 0 auto 18px auto;
     }
-
-
-    /* ======================================================
-       صندوق الدخول
-       ====================================================== */
 
     .login-box {
         width: 100%;
         max-width: 430px;
-
         margin: 0 auto;
-
         text-align: right;
     }
 
-
-    /* ======================================================
-       اللوجو الداخلي
-       ====================================================== */
-
     .internal-logo-container {
         width: 100%;
-
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-
         text-align: center !important;
-
         margin: 0 auto 8px auto !important;
         padding: 0 !important;
     }
 
     .internal-logo-container img {
         display: block !important;
-
         width: 145px !important;
         height: 145px !important;
-
         object-fit: contain;
-
         margin-left: auto !important;
         margin-right: auto !important;
-
         position: relative !important;
         left: auto !important;
         right: auto !important;
     }
 
-
-    /* ======================================================
-       العناوين الرئيسية
-       ====================================================== */
-
     .main-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #17365d;
-
         font-size: 27px;
         font-weight: 900;
-
         line-height: 1.5;
-
         margin: 0 auto 3px auto;
     }
 
     .sub-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #294d7c;
-
         font-size: 19px;
         font-weight: 600;
-
         line-height: 1.5;
-
         margin: 0 auto 18px auto;
     }
-
-
-    /* ======================================================
-       عناوين الأقسام
-       ====================================================== */
 
     .section-title {
         background: linear-gradient(
@@ -292,92 +205,49 @@ st.markdown(
             #17365d,
             #294d7c
         );
-
         color: white;
-
         border-radius: 10px;
-
         padding: 10px 15px;
-
         margin-top: 12px;
         margin-bottom: 10px;
-
         font-size: 20px;
         font-weight: 800;
-
         text-align: right;
     }
 
-
-    /* ======================================================
-       البطاقات
-       ====================================================== */
-
     .info-card {
         background: white;
-
         border-radius: 12px;
-
         padding: 15px;
-
         margin-bottom: 12px;
-
         box-shadow:
             0 2px 8px rgba(0, 0, 0, 0.08);
-
         border: 1px solid #e5eaf0;
     }
 
-
-    /* ======================================================
-       تفاصيل السجلات
-       ====================================================== */
-
     .record-title {
         color: #17365d;
-
         font-size: 18px;
-
         font-weight: 800;
-
         margin-bottom: 8px;
     }
 
     .record-line {
         font-size: 15px;
-
         color: #333;
-
         margin: 4px 0;
-
         line-height: 1.7;
     }
 
-
-    /* ======================================================
-       الفوتر
-       ====================================================== */
-
     .custom-footer {
         width: 100%;
-
         text-align: center;
-
         color: #6b7280;
-
         font-size: 13px;
-
         margin-top: 25px;
-
         padding-top: 10px;
-
         border-top: 1px solid #e5e7eb;
     }
-
-
-    /* ======================================================
-       الحقول
-       ====================================================== */
 
     div[data-testid="stTextInput"] input,
     div[data-testid="stTextArea"] textarea {
@@ -390,76 +260,38 @@ st.markdown(
         text-align: right;
     }
 
-
-    /* ======================================================
-       الأزرار
-       ====================================================== */
-
     .stButton > button {
         width: 100%;
-
         border-radius: 8px;
-
         min-height: 42px;
-
         font-weight: 700;
     }
-
-
-    /* ======================================================
-       رفع الملفات
-       ====================================================== */
 
     section[data-testid="stFileUploader"] {
         direction: rtl;
         text-align: right;
     }
 
-
-    /* ======================================================
-       Expander
-       ====================================================== */
-
     div[data-testid="stExpander"] {
         border-radius: 10px !important;
-
         border: 1px solid #e1e7ef !important;
-
         background: white !important;
-
         margin-bottom: 10px !important;
     }
 
-
-    /* ======================================================
-       الرسائل
-       ====================================================== */
-
     div[data-testid="stAlert"] {
         direction: rtl;
-
         text-align: right;
     }
-
-
-    /* ======================================================
-       Selectbox
-       ====================================================== */
 
     div[data-baseweb="select"] {
         direction: rtl;
     }
 
-
-    /* ======================================================
-       الشاشات الصغيرة
-       ====================================================== */
-
     @media (max-width: 600px) {
 
         .block-container {
             width: 94% !important;
-
             padding-top: 5px !important;
         }
 
@@ -583,16 +415,24 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    password = st.text_input(
-        "🔐 كلمة المرور",
-        type="password",
-        placeholder="أدخل كلمة المرور"
-    )
+    # ========================================================
+    # كلمة المرور
+    # الضغط على Enter داخل الحقل يؤدي إلى تسجيل الدخول
+    # ========================================================
 
-    login_clicked = st.button(
-        "🔓 تسجيل الدخول",
-        type="primary"
-    )
+    with st.form("login_form"):
+
+        password = st.text_input(
+            "🔐 كلمة المرور",
+            type="password",
+            placeholder="أدخل كلمة المرور"
+        )
+
+        login_clicked = st.form_submit_button(
+            "🔓 تسجيل الدخول",
+            type="primary",
+            use_container_width=True
+        )
 
     st.markdown(
         '</div>',
@@ -648,6 +488,7 @@ def init_db():
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS documents (
+
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             doc_type TEXT NOT NULL,
@@ -682,7 +523,6 @@ init_db()
 def get_archive_folder(doc_type):
 
     if doc_type == "وارد":
-
         return INCOMING_DIR
 
     return OUTGOING_DIR
@@ -691,7 +531,6 @@ def get_archive_folder(doc_type):
 def save_uploaded_file(uploaded_file, doc_type):
 
     if uploaded_file is None:
-
         return None
 
     folder = get_archive_folder(doc_type)
@@ -700,7 +539,9 @@ def save_uploaded_file(uploaded_file, doc_type):
         "%Y%m%d_%H%M%S_%f"
     )
 
-    original_name = Path(uploaded_file.name).name
+    original_name = Path(
+        uploaded_file.name
+    ).name
 
     safe_name = f"{timestamp}_{original_name}"
 
@@ -900,7 +741,6 @@ def update_document(
 def delete_old_file(file_path):
 
     if not file_path:
-
         return
 
     try:
@@ -914,7 +754,6 @@ def delete_old_file(file_path):
             path.unlink()
 
     except Exception:
-
         pass
 
 
@@ -1235,7 +1074,7 @@ elif st.session_state.page == "السجلات":
     st.markdown(
         """
         <div class="section-title">
-            📋 سجلات الوارد والصادر
+            📋 بيانات الوارد والصادر
         </div>
         """,
         unsafe_allow_html=True
@@ -1292,25 +1131,23 @@ elif st.session_state.page == "السجلات":
             expander_title = (
                 f"{icon} "
                 f"{row['doc_type']} - "
-                f"{row['doc_number']} - "
-                f"{row['subject']}"
+                f"{row['doc_number']}"
             )
 
             with st.expander(
                 expander_title
             ):
 
+                # ====================================================
+                # عرض بيانات الوارد والصادر فقط
+                # ====================================================
+
                 st.markdown(
                     f"""
                     <div class="info-card">
 
                         <div class="record-title">
-                            {icon} بيانات المستند
-                        </div>
-
-                        <div class="record-line">
-                            <b>النوع:</b>
-                            {row["doc_type"]}
+                            {icon} بيانات {row["doc_type"]}
                         </div>
 
                         <div class="record-line">
@@ -1319,17 +1156,17 @@ elif st.session_state.page == "السجلات":
                         </div>
 
                         <div class="record-line">
-                            <b>التاريخ:</b>
+                            <b>تاريخ المستند:</b>
                             {row["doc_date"]}
                         </div>
 
                         <div class="record-line">
-                            <b>الجهة:</b>
+                            <b>الجهة / الطرف:</b>
                             {row["party"]}
                         </div>
 
                         <div class="record-line">
-                            <b>الموضوع:</b>
+                            <b>موضوع المستند:</b>
                             {row["subject"]}
                         </div>
 
@@ -1386,7 +1223,6 @@ elif st.session_state.page == "السجلات":
 
                         go_to("تعديل")
 
-
                 with col2:
 
                     if st.button(
@@ -1442,7 +1278,6 @@ elif st.session_state.page == "البحث":
 
             st.rerun()
 
-
     with col2:
 
         if st.button(
@@ -1460,7 +1295,7 @@ elif st.session_state.page == "البحث":
         )
 
         st.markdown(
-            f"""
+            """
             <div class="section-title">
                 📊 نتائج البحث
             </div>
@@ -1492,8 +1327,7 @@ elif st.session_state.page == "البحث":
                 title = (
                     f"{icon} "
                     f"{row['doc_type']} - "
-                    f"{row['doc_number']} - "
-                    f"{row['subject']}"
+                    f"{row['doc_number']}"
                 )
 
                 with st.expander(title):
@@ -1503,27 +1337,22 @@ elif st.session_state.page == "البحث":
                         <div class="info-card">
 
                             <div class="record-line">
-                                <b>النوع:</b>
-                                {row["doc_type"]}
-                            </div>
-
-                            <div class="record-line">
                                 <b>رقم المستند:</b>
                                 {row["doc_number"]}
                             </div>
 
                             <div class="record-line">
-                                <b>التاريخ:</b>
+                                <b>تاريخ المستند:</b>
                                 {row["doc_date"]}
                             </div>
 
                             <div class="record-line">
-                                <b>الجهة:</b>
+                                <b>الجهة / الطرف:</b>
                                 {row["party"]}
                             </div>
 
                             <div class="record-line">
-                                <b>الموضوع:</b>
+                                <b>موضوع المستند:</b>
                                 {row["subject"]}
                             </div>
 
