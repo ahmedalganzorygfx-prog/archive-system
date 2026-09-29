@@ -284,7 +284,6 @@ st.markdown(
         border: 1px solid #e1e7ef !important;
         background: white !important;
         margin-bottom: 10px !important;
-
         direction: rtl !important;
         text-align: right !important;
     }
@@ -508,19 +507,12 @@ def init_db():
         """
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             doc_type TEXT NOT NULL,
-
             doc_number TEXT NOT NULL,
-
             doc_date TEXT NOT NULL,
-
             party TEXT NOT NULL,
-
             subject TEXT NOT NULL,
-
             file_path TEXT,
-
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
@@ -556,15 +548,11 @@ def get_next_document_number(doc_type):
     max_number = row[0]
 
     if doc_type == "وارد":
-
         start_number = 961
-
     else:
-
         start_number = 1160
 
     if max_number is None or max_number < start_number:
-
         return str(start_number)
 
     return str(max_number + 1)
@@ -577,7 +565,6 @@ def get_next_document_number(doc_type):
 def get_archive_folder(doc_type):
 
     if doc_type == "وارد":
-
         return INCOMING_DIR
 
     return OUTGOING_DIR
@@ -586,7 +573,6 @@ def get_archive_folder(doc_type):
 def save_uploaded_file(uploaded_file, doc_type):
 
     if uploaded_file is None:
-
         return None
 
     folder = get_archive_folder(doc_type)
@@ -602,10 +588,7 @@ def save_uploaded_file(uploaded_file, doc_type):
     file_path = folder / safe_name
 
     with open(file_path, "wb") as file:
-
-        file.write(
-            uploaded_file.getbuffer()
-        )
+        file.write(uploaded_file.getbuffer())
 
     return str(file_path)
 
@@ -795,7 +778,6 @@ def update_document(
 def delete_old_file(file_path):
 
     if not file_path:
-
         return
 
     try:
@@ -809,7 +791,6 @@ def delete_old_file(file_path):
             path.unlink()
 
     except Exception:
-
         pass
 
 
@@ -1174,7 +1155,6 @@ elif st.session_state.page == "السجلات":
         f"📊 عدد السجلات: **{len(rows)}**"
     )
 
-
     if not rows:
 
         st.info(
@@ -1198,42 +1178,47 @@ elif st.session_state.page == "السجلات":
                 f"{row['subject']}"
             )
 
-    with st.expander(
-                expander_title
-            ):
+            with st.expander(expander_title):
 
-st.markdown(
-    f"""
-    <div class="info-card">
+                record_icon = (
+                    "📥"
+                    if row["doc_type"] == "وارد"
+                    else "📤"
+                )
 
-        <div class="record-title">
-            📥 بيانات المستند
-        </div>
+                st.markdown(
+                    f"""
+                    <div class="info-card">
 
-        <div class="record-line">
-            <b>النوع:</b> {row["doc_type"]}
-        </div>
+                        <div class="record-title">
+                            {record_icon} بيانات المستند
+                        </div>
 
-        <div class="record-line">
-            <b>رقم المستند:</b> {row["doc_number"]}
-        </div>
+                        <div class="record-line">
+                            <b>النوع:</b> {row["doc_type"]}
+                        </div>
 
-        <div class="record-line">
-            <b>التاريخ:</b> {row["doc_date"]}
-        </div>
+                        <div class="record-line">
+                            <b>رقم المستند:</b> {row["doc_number"]}
+                        </div>
 
-        <div class="record-line">
-            <b>الجهة:</b> {row["party"]}
-        </div>
+                        <div class="record-line">
+                            <b>التاريخ:</b> {row["doc_date"]}
+                        </div>
 
-        <div class="record-line">
-            <b>الموضوع:</b> {row["subject"]}
-        </div>
+                        <div class="record-line">
+                            <b>الجهة:</b> {row["party"]}
+                        </div>
 
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+                        <div class="record-line">
+                            <b>الموضوع:</b> {row["subject"]}
+                        </div>
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
                 if row["file_path"]:
 
                     file_path = Path(
@@ -1267,7 +1252,6 @@ st.markdown(
                         "📄 لا يوجد ملف PDF مرفق."
                     )
 
-
                 col1, col2 = st.columns(2)
 
                 with col1:
@@ -1280,7 +1264,6 @@ st.markdown(
                         st.session_state.edit_id = row["id"]
 
                         go_to("تعديل")
-
 
                 with col2:
 
@@ -1336,7 +1319,6 @@ elif st.session_state.page == "البحث":
             st.session_state.search_query = search_text
 
             st.rerun()
-
 
     with col2:
 
@@ -1426,7 +1408,6 @@ elif st.session_state.page == "البحث":
                         """,
                         unsafe_allow_html=True
                     )
-
 
                     if row["file_path"]:
 
