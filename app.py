@@ -240,79 +240,111 @@ st.markdown(
         unicode-bidi: isolate !important;
     }
 
+
     /* ========================================================
-       صف بيانات المستند
-       الترتيب البصري:
-       النوع: وارد
-       رقم المستند: 961
-       التاريخ: 29/09/2026
-       الجهة: الاكاديمية
-       الموضوع: الترقي
+       جدول بيانات المستند
+       تم استخدام جدول بدل Flex لضمان الترتيب البصري
        ======================================================== */
 
-    .record-row {
-        display: flex !important;
-
-        flex-direction: row !important;
-
-        direction: rtl !important;
-
-        justify-content: flex-start !important;
-
-        align-items: center !important;
-
-        width: 100%;
-
-        margin: 5px 0;
-
-        padding: 0;
-
-        font-size: 15px;
-
-        line-height: 1.8;
-
-        color: #333;
-
-        text-align: right !important;
-
-        unicode-bidi: isolate !important;
-    }
-
-    .record-label {
-        display: inline-block !important;
-
-        font-weight: 700;
-
-        white-space: nowrap;
+    .record-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
 
         direction: rtl !important;
 
         text-align: right !important;
 
-        unicode-bidi: isolate !important;
+        margin: 0 !important;
+        padding: 0 !important;
+
+        table-layout: auto !important;
     }
 
-    .record-value {
-        display: inline-block !important;
-
-        margin-right: 7px;
-
-        font-weight: 400;
-
-        direction: rtl;
-
-        text-align: right;
-
-        unicode-bidi: isolate !important;
+    .record-table tr {
+        direction: rtl !important;
     }
 
-    .record-value[dir="ltr"] {
+    .record-table td {
+        padding: 4px 0 !important;
+
+        margin: 0 !important;
+
+        font-size: 15px !important;
+
+        line-height: 1.8 !important;
+
+        vertical-align: middle !important;
+
+        border: none !important;
+
+        background: transparent !important;
+    }
+
+    /* اسم الحقل - يظهر في أقصى اليمين */
+
+    .record-table .record-label {
+        width: 1% !important;
+
+        white-space: nowrap !important;
+
+        font-weight: 700 !important;
+
+        color: #333 !important;
+
+        text-align: right !important;
+
+        direction: rtl !important;
+
+        unicode-bidi: isolate !important;
+
+        padding-left: 10px !important;
+    }
+
+    /* قيمة الحقل - تظهر مباشرة إلى يسار الاسم */
+
+    .record-table .record-value {
+        width: 99% !important;
+
+        color: #333 !important;
+
+        font-weight: 400 !important;
+
+        text-align: right !important;
+
+        direction: rtl !important;
+
+        unicode-bidi: isolate !important;
+
+        white-space: normal !important;
+
+        word-break: break-word !important;
+    }
+
+    /* رقم المستند */
+
+    .record-table .record-number {
         direction: ltr !important;
 
-        text-align: left !important;
+        unicode-bidi: isolate !important;
+
+        text-align: right !important;
+
+        white-space: nowrap !important;
+    }
+
+    /* التاريخ */
+
+    .record-table .record-date {
+        direction: ltr !important;
 
         unicode-bidi: isolate !important;
+
+        text-align: right !important;
+
+        white-space: nowrap !important;
     }
+
 
     .custom-footer {
         width: 100%;
@@ -421,8 +453,8 @@ st.markdown(
             font-size: 17px;
         }
 
-        .record-row {
-            font-size: 14px;
+        .record-table td {
+            font-size: 14px !important;
         }
 
     }
@@ -1259,7 +1291,7 @@ elif st.session_state.page == "السجلات":
                 )
 
                 # ====================================================
-                # بيانات المستند
+                # بيانات المستند - جدول RTL ثابت
                 # ====================================================
 
                 st.markdown(
@@ -1270,40 +1302,54 @@ elif st.session_state.page == "السجلات":
                             {record_icon} بيانات المستند
                         </div>
 
-                        <div class="record-row">
-                            <span class="record-label">النوع:</span>
-                            <span class="record-value">
-                                {row["doc_type"]}
-                            </span>
-                        </div>
+                        <table class="record-table">
 
-                        <div class="record-row">
-                            <span class="record-label">رقم المستند:</span>
-                            <span class="record-value" dir="ltr">
-                                {row["doc_number"]}
-                            </span>
-                        </div>
+                            <tr>
+                                <td class="record-label">
+                                    النوع:
+                                </td>
+                                <td class="record-value">
+                                    {row["doc_type"]}
+                                </td>
+                            </tr>
 
-                        <div class="record-row">
-                            <span class="record-label">التاريخ:</span>
-                            <span class="record-value" dir="ltr">
-                                {row["doc_date"]}
-                            </span>
-                        </div>
+                            <tr>
+                                <td class="record-label">
+                                    رقم المستند:
+                                </td>
+                                <td class="record-value record-number">
+                                    {row["doc_number"]}
+                                </td>
+                            </tr>
 
-                        <div class="record-row">
-                            <span class="record-label">الجهة:</span>
-                            <span class="record-value">
-                                {row["party"]}
-                            </span>
-                        </div>
+                            <tr>
+                                <td class="record-label">
+                                    التاريخ:
+                                </td>
+                                <td class="record-value record-date">
+                                    {row["doc_date"]}
+                                </td>
+                            </tr>
 
-                        <div class="record-row">
-                            <span class="record-label">الموضوع:</span>
-                            <span class="record-value">
-                                {row["subject"]}
-                            </span>
-                        </div>
+                            <tr>
+                                <td class="record-label">
+                                    الجهة:
+                                </td>
+                                <td class="record-value">
+                                    {row["party"]}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="record-label">
+                                    الموضوع:
+                                </td>
+                                <td class="record-value">
+                                    {row["subject"]}
+                                </td>
+                            </tr>
+
+                        </table>
 
                     </div>
                     """,
@@ -1467,7 +1513,7 @@ elif st.session_state.page == "البحث":
                 with st.expander(title):
 
                     # ====================================================
-                    # بيانات البحث
+                    # بيانات البحث - جدول RTL ثابت
                     # ====================================================
 
                     st.markdown(
@@ -1478,40 +1524,54 @@ elif st.session_state.page == "البحث":
                                 {icon} بيانات المستند
                             </div>
 
-                            <div class="record-row">
-                                <span class="record-label">النوع:</span>
-                                <span class="record-value">
-                                    {row["doc_type"]}
-                                </span>
-                            </div>
+                            <table class="record-table">
 
-                            <div class="record-row">
-                                <span class="record-label">رقم المستند:</span>
-                                <span class="record-value" dir="ltr">
-                                    {row["doc_number"]}
-                                </span>
-                            </div>
+                                <tr>
+                                    <td class="record-label">
+                                        النوع:
+                                    </td>
+                                    <td class="record-value">
+                                        {row["doc_type"]}
+                                    </td>
+                                </tr>
 
-                            <div class="record-row">
-                                <span class="record-label">التاريخ:</span>
-                                <span class="record-value" dir="ltr">
-                                    {row["doc_date"]}
-                                </span>
-                            </div>
+                                <tr>
+                                    <td class="record-label">
+                                        رقم المستند:
+                                    </td>
+                                    <td class="record-value record-number">
+                                        {row["doc_number"]}
+                                    </td>
+                                </tr>
 
-                            <div class="record-row">
-                                <span class="record-label">الجهة:</span>
-                                <span class="record-value">
-                                    {row["party"]}
-                                </span>
-                            </div>
+                                <tr>
+                                    <td class="record-label">
+                                        التاريخ:
+                                    </td>
+                                    <td class="record-value record-date">
+                                        {row["doc_date"]}
+                                    </td>
+                                </tr>
 
-                            <div class="record-row">
-                                <span class="record-label">الموضوع:</span>
-                                <span class="record-value">
-                                    {row["subject"]}
-                                </span>
-                            </div>
+                                <tr>
+                                    <td class="record-label">
+                                        الجهة:
+                                    </td>
+                                    <td class="record-value">
+                                        {row["party"]}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="record-label">
+                                        الموضوع:
+                                    </td>
+                                    <td class="record-value">
+                                        {row["subject"]}
+                                    </td>
+                                </tr>
+
+                            </table>
 
                         </div>
                         """,
