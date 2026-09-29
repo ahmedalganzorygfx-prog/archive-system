@@ -233,8 +233,8 @@ st.markdown(
         font-size: 18px;
         font-weight: 800;
         margin-bottom: 8px;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
     }
 
     .record-line {
@@ -242,8 +242,9 @@ st.markdown(
         color: #333;
         margin: 4px 0;
         line-height: 1.7;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
+        unicode-bidi: plaintext;
     }
 
     .custom-footer {
@@ -1186,31 +1187,42 @@ elif st.session_state.page == "السجلات":
                     else "📤"
                 )
 
+                # ====================================================
+                # بيانات المستند - RTL مع الإبقاء على التاريخ
+                # ====================================================
+
                 st.markdown(
                     f"""
-                    <div class="info-card">
+                    <div class="info-card"
+                         style="direction: rtl; text-align: right;">
 
-                        <div class="record-title">
+                        <div class="record-title"
+                             style="direction: rtl; text-align: right;">
                             {record_icon} بيانات المستند
                         </div>
 
-                        <div class="record-line">
+                        <div class="record-line"
+                             style="direction: rtl; text-align: right;">
                             <b>النوع:</b> {row["doc_type"]}
                         </div>
 
-                        <div class="record-line">
+                        <div class="record-line"
+                             style="direction: rtl; text-align: right;">
                             <b>رقم المستند:</b> {row["doc_number"]}
                         </div>
 
-                        <div class="record-line">
+                        <div class="record-line"
+                             style="direction: rtl; text-align: right;">
                             <b>التاريخ:</b> {row["doc_date"]}
                         </div>
 
-                        <div class="record-line">
+                        <div class="record-line"
+                             style="direction: rtl; text-align: right;">
                             <b>الجهة:</b> {row["party"]}
                         </div>
 
-                        <div class="record-line">
+                        <div class="record-line"
+                             style="direction: rtl; text-align: right;">
                             <b>الموضوع:</b> {row["subject"]}
                         </div>
 
@@ -1375,33 +1387,43 @@ elif st.session_state.page == "البحث":
 
                 with st.expander(title):
 
+                    # ====================================================
+                    # بيانات البحث - RTL مع الإبقاء على التاريخ
+                    # ====================================================
+
                     st.markdown(
                         f"""
-                        <div class="info-card">
+                        <div class="info-card"
+                             style="direction: rtl; text-align: right;">
 
-                            <div class="record-line">
-                                <b>النوع:</b>
-                                {row["doc_type"]}
+                            <div class="record-title"
+                                 style="direction: rtl; text-align: right;">
+                                {icon} بيانات المستند
                             </div>
 
-                            <div class="record-line">
-                                <b>رقم المستند:</b>
-                                {row["doc_number"]}
+                            <div class="record-line"
+                                 style="direction: rtl; text-align: right;">
+                                <b>النوع:</b> {row["doc_type"]}
                             </div>
 
-                            <div class="record-line">
-                                <b>التاريخ:</b>
-                                {row["doc_date"]}
+                            <div class="record-line"
+                                 style="direction: rtl; text-align: right;">
+                                <b>رقم المستند:</b> {row["doc_number"]}
                             </div>
 
-                            <div class="record-line">
-                                <b>الجهة:</b>
-                                {row["party"]}
+                            <div class="record-line"
+                                 style="direction: rtl; text-align: right;">
+                                <b>التاريخ:</b> {row["doc_date"]}
                             </div>
 
-                            <div class="record-line">
-                                <b>الموضوع:</b>
-                                {row["subject"]}
+                            <div class="record-line"
+                                 style="direction: rtl; text-align: right;">
+                                <b>الجهة:</b> {row["party"]}
+                            </div>
+
+                            <div class="record-line"
+                                 style="direction: rtl; text-align: right;">
+                                <b>الموضوع:</b> {row["subject"]}
                             </div>
 
                         </div>
