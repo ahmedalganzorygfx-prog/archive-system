@@ -1202,7 +1202,7 @@ elif st.session_state.page == "السجلات":
                 expander_title
             ):
 
-st.markdown(
+           st.markdown(
     f"""
     <div class="info-card">
 
