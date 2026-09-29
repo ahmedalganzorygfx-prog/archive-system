@@ -23,93 +23,151 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-    .stApp {
-        direction: rtl;
-        text-align: right;
-    }
+html, body, [class*="css"] {
+    font-family: Arial, Tahoma, sans-serif;
+}
 
-    body, p, div, label, span, input, textarea, select {
-        font-family: Arial, Tahoma, sans-serif;
-    }
+/* الصفحة */
+.stApp {
+    direction: rtl;
+    background: #f7f9fc;
+}
 
-    h1, h2, h3, h4 {
-        direction: rtl;
-        text-align: center;
-    }
+/* حاوية البرنامج الرئيسية */
+.block-container {
+    max-width: 50vw !important;
+    width: 50vw !important;
+    margin: 0 auto !important;
+    padding-top: 20px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 
-    input, textarea {
-        direction: rtl !important;
-        text-align: right !important;
-    }
+/* اللوجو */
+.logo-container {
+    width: 100%;
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 8px;
+}
 
-    .stSelectbox div {
-        direction: rtl;
-        text-align: right;
-    }
+.logo-container img {
+    display: block;
+    margin: auto;
+}
 
-    .stDateInput div {
-        direction: rtl;
-    }
+/* العناوين */
+.main-title {
+    text-align: center;
+    direction: rtl;
+    font-size: 30px;
+    font-weight: bold;
+    color: #183153;
+    margin-top: 5px;
+    margin-bottom: 6px;
+}
 
-    .stFileUploader {
-        direction: rtl;
-        text-align: right;
-    }
+.branch-title {
+    text-align: center;
+    direction: rtl;
+    font-size: 20px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 25px;
+}
 
-    .stButton button {
-        direction: rtl;
-        font-family: Arial, Tahoma, sans-serif;
-        font-size: 16px;
-        font-weight: bold;
-    }
+/* عنوان الأقسام */
+.section-title {
+    background: linear-gradient(
+        135deg,
+        #183153,
+        #315a8a
+    );
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    direction: rtl;
+    font-size: 21px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 18px;
+}
 
-    .main-title {
-        text-align: center;
-        direction: rtl;
-        font-size: 34px;
-        font-weight: bold;
-        margin-top: 5px;
-        margin-bottom: 5px;
-    }
+/* أزرار الوارد والصادر */
+.stButton button {
+    width: 100%;
+    min-height: 55px;
+    border-radius: 12px !important;
+    border: none !important;
+    font-family: Arial, Tahoma, sans-serif !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    transition: all 0.2s ease-in-out;
+}
 
-    .branch-title {
-        text-align: center;
-        direction: rtl;
-        font-size: 22px;
-        font-weight: bold;
-        margin-bottom: 25px;
-    }
+/* بطاقات أزرار الصفحة الرئيسية */
+div[data-testid="stHorizontalBlock"] .stButton button {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
 
-    .section-title {
-        background: #f1f5f9;
-        padding: 12px;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 15px;
-        margin-bottom: 20px;
-    }
+.stButton button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(0,0,0,0.16);
+}
 
-    .document-card {
-        background: #f8fafc;
-        border: 1px solid #dbe3ec;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 10px;
-    }
+/* الحقول */
+input,
+textarea {
+    direction: rtl !important;
+    text-align: right !important;
+    border-radius: 8px !important;
+}
 
-    footer {
-        visibility: hidden;
-    }
+/* رفع الملفات */
+section[data-testid="stFileUploader"] {
+    direction: rtl;
+}
 
-    #MainMenu {
-        visibility: hidden;
-    }
+/* بطاقات المستندات */
+.document-card {
+    background: white;
+    border: 1px solid #e1e7ef;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    direction: rtl;
+    text-align: right;
+}
+
+/* الفوتر */
+.footer {
+    text-align: center;
+    direction: rtl;
+    margin-top: 35px;
+    padding: 15px 5px;
+    border-top: 1px solid #dce2e9;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* إخفاء عناصر Streamlit */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    background: transparent !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
-
 # =========================================================
 # 3. المجلدات
 # =========================================================
@@ -185,25 +243,24 @@ if "edit_id" not in st.session_state:
 
 
 # =========================================================
-# 6. الترويسة
+# الترويسة
 # =========================================================
 
 st.markdown(
-    """
-    <div style="
-        width:100%;
-        text-align:center;
-        margin-top:10px;
-        margin-bottom:5px;
-    ">
-    """,
+    '<div class="logo-container">',
     unsafe_allow_html=True
 )
 
 if os.path.exists("logo.png"):
-    st.image("logo.png", width=130)
+    st.image(
+        "logo.png",
+        width=115
+    )
 
-st.markdown("</div>", unsafe_allow_html=True)
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 st.markdown(
     """
@@ -217,7 +274,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 # =========================================================
 # 7. دوال مساعدة
@@ -392,50 +448,59 @@ def save_document(
 
 
 # =========================================================
-# 8. الرئيسية
+# أزرار الوارد والصادر
 # =========================================================
 
-if st.session_state.page == "home":
+st.markdown(
+    """
+    <div class="section-title">
+        اختر نوع المعاملة
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+col1, col2 = st.columns(2)
+
+with col1:
 
     st.markdown(
         """
-        <div class="section-title">
-            اختر نوع المعاملة
-        </div>
+        <style>
+        div[data-testid="stButton"]
+        button[kind="secondary"] {
+            background: linear-gradient(
+                135deg,
+                #1769aa,
+                #2196d3
+            ) !important;
+            color: white !important;
+        }
+        </style>
         """,
         unsafe_allow_html=True
     )
 
-    col1, col2, col3 = st.columns(
-        [1, 2, 2]
-    )
+    if st.button(
+        "📥  الوارد",
+        use_container_width=True,
+        key="home_incoming"
+    ):
+        st.session_state.page = "incoming"
+        st.session_state.edit_id = None
+        st.rerun()
 
-    with col2:
 
-        if st.button(
-            "📥 الوارد",
-            use_container_width=True,
-            key="home_incoming"
-        ):
+with col2:
 
-            st.session_state.page = "incoming"
-            st.session_state.edit_id = None
-
-            st.rerun()
-
-    with col3:
-
-        if st.button(
-            "📤 الصادر",
-            use_container_width=True,
-            key="home_outgoing"
-        ):
-
-            st.session_state.page = "outgoing"
-            st.session_state.edit_id = None
-
-            st.rerun()
-
+    if st.button(
+        "📤  الصادر",
+        use_container_width=True,
+        key="home_outgoing"
+    ):
+        st.session_state.page = "outgoing"
+        st.session_state.edit_id = None
+        st.rerun()
     # إحصائيات
     conn = get_db_connection()
     cursor = conn.cursor()
