@@ -578,12 +578,10 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-st.markdown(
-    '<div class="login-box">',
-    unsafe_allow_html=True
-)
-
-with st.form(key="login_form"):
+    st.markdown(
+        '<div class="login-box">',
+        unsafe_allow_html=True
+    )
 
     password = st.text_input(
         "🔐 كلمة المرور",
@@ -591,31 +589,32 @@ with st.form(key="login_form"):
         placeholder="أدخل كلمة المرور"
     )
 
-    login_clicked = st.form_submit_button(
+    login_clicked = st.button(
         "🔓 تسجيل الدخول",
         type="primary"
     )
 
-st.markdown(
-    '</div>',
-    unsafe_allow_html=True
-)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-if login_clicked:
+    if login_clicked:
 
-    if password == APP_PASSWORD:
+        if password == APP_PASSWORD:
 
-        st.session_state.authenticated = True
+            st.session_state.authenticated = True
 
-        st.rerun()
+            st.rerun()
 
-    else:
+        else:
 
-        st.error("❌ كلمة المرور غير صحيحة")
+            st.error("❌ كلمة المرور غير صحيحة")
+
     st.markdown(
         """
         <div class="custom-footer">
-            ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+            ✦ تصميم وتنفيذ أحمد الجنزوري ✦
         </div>
         """,
         unsafe_allow_html=True
@@ -1882,7 +1881,7 @@ st.markdown(
     <div class="custom-footer">
         الأكاديمية المهنية للمعلمين - فرع الجيزة
         <br>
-        ✦  تصميم وتنفيذ أحمد الجنزوري- مدير الفرع ✦
+        ✦ تصميم وتنفيذ أحمد الجنزوري ✦
     </div>
     """,
     unsafe_allow_html=True
