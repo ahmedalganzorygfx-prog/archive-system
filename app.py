@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import sqlite3
 from pathlib import Path
@@ -1925,4 +1924,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-```
