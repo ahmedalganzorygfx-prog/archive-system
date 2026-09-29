@@ -501,22 +501,61 @@ def get_counts():
 # =========================================================
 
 # توسيط اللوجو باستخدام الأعمدة
-logo_left, logo_center, logo_right = st.columns(
-    [1, 1, 1]
-)
+# =========================================================
+# اللوجو - تكبير وتوسيط كامل
+# =========================================================
 
-with logo_center:
-    if LOGO_PATH.exists():
-        st.image(
-            str(LOGO_PATH),
-            width=115
-        )
-    else:
-        st.markdown(
-            "<h1 style='text-align:center'>📂</h1>",
-            unsafe_allow_html=True
-        )
+st.markdown("""
+<style>
+/* حاوية اللوجو */
+.logo-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto 15px auto;
+}
 
+/* تكبير صورة اللوجو */
+.logo-wrapper img {
+    width: 260px !important;
+    max-width: 90% !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* تصغير اللوجو تلقائياً على الهاتف */
+@media (max-width: 600px) {
+    .logo-wrapper img {
+        width: 190px !important;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+if LOGO_PATH.exists():
+    st.markdown(
+        '<div class="logo-wrapper">',
+        unsafe_allow_html=True
+    )
+
+    st.image(
+        str(LOGO_PATH),
+        width=260
+    )
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        "<h1 style='text-align:center'>📂</h1>",
+        unsafe_allow_html=True
+    )
 st.markdown("""
 <div class="main-title">
     الأكاديمية المهنية للمعلمين – فرع الجيزة
