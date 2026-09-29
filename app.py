@@ -1202,39 +1202,38 @@ elif st.session_state.page == "السجلات":
                 expander_title
             ):
 
-                st.markdown(
-                    f"""
-                    <div class="info-card">
+st.markdown(
+    f"""
+    <div class="info-card">
 
-                        <div class="record-title">
-                            📥 بيانات المستند
-                        </div>
+        <div class="record-title">
+            📥 بيانات المستند
+        </div>
 
-                        <div class="record-line">
-                            <b>النوع:</b> وارد
-                        </div>
+        <div class="record-line">
+            <b>النوع:</b> {row["doc_type"]}
+        </div>
 
-                        <div class="record-line">
-                            <b>رقم المستند:</b> 122
-                        </div>
+        <div class="record-line">
+            <b>رقم المستند:</b> {row["doc_number"]}
+        </div>
 
-                        <div class="record-line">
-                            <b>التاريخ:</b> 29/09/2026
-                        </div>
+        <div class="record-line">
+            <b>التاريخ:</b> {row["doc_date"]}
+        </div>
 
-                        <div class="record-line">
-                            <b>الجهة:</b> الاكاديمية
-                        </div>
+        <div class="record-line">
+            <b>الجهة:</b> {row["party"]}
+        </div>
 
-                        <div class="record-line">
-                            <b>الموضوع:</b> اعادة تعيين
-                        </div>
+        <div class="record-line">
+            <b>الموضوع:</b> {row["subject"]}
+        </div>
 
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
                 if row["file_path"]:
 
