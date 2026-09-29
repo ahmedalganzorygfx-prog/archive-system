@@ -614,7 +614,7 @@ if not st.session_state.authenticated:
     st.markdown(
         """
         <div class="custom-footer">
-            ✦ تصميم وتنفيذ أحمد الجنزوري ✦
+            ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
         </div>
         """,
         unsafe_allow_html=True
