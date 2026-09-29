@@ -1,216 +1,367 @@
-st.markdown("""
+```python
+import streamlit as st
+import sqlite3
+from pathlib import Path
+from datetime import date, datetime
+
+
+# ============================================================
+# إعدادات الصفحة
+# ============================================================
+
+st.set_page_config(
+    page_title="منظومة الوارد والصادر",
+    page_icon="📁",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
+
+# ============================================================
+# المسارات
+# ============================================================
+
+BASE_DIR = Path(__file__).resolve().parent
+
+DB_PATH = BASE_DIR / "documents.db"
+
+ARCHIVE_DIR = BASE_DIR / "Archive_Files"
+
+INCOMING_DIR = ARCHIVE_DIR / "Incoming"
+
+OUTGOING_DIR = ARCHIVE_DIR / "Outgoing"
+
+LOGO_PATH = BASE_DIR / "logo.png"
+
+
+# ============================================================
+# إنشاء مجلدات الأرشيف
+# ============================================================
+
+INCOMING_DIR.mkdir(
+    parents=True,
+    exist_ok=True
+)
+
+OUTGOING_DIR.mkdir(
+    parents=True,
+    exist_ok=True
+)
+
+
+# ============================================================
+# حماية البرنامج بكلمة مرور
+# ============================================================
+
+APP_PASSWORD = "1234"
+
+
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+
+# ============================================================
+# CSS - التصميم الكامل
+# ============================================================
+
+st.markdown(
+    """
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-html, body, [class*="css"] {
+
+/* ==========================================================
+   الإعدادات العامة
+   ========================================================== */
+
+html,
+body,
+[class*="css"] {
+
     font-family: 'Cairo', sans-serif !important;
+
 }
 
-/* ==========================================
-   الاتجاه العام
-   ========================================== */
 
 .stApp {
+
     direction: rtl;
+
     text-align: right;
+
     background-color: #f7f9fc;
+
 }
 
-/* ==========================================
+
+/* ==========================================================
    إخفاء عناصر Streamlit
-   ========================================== */
+   ========================================================== */
+
+/* القائمة الرئيسية */
 
 #MainMenu {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
+
+
+/* Footer الخاص بـ Streamlit */
 
 footer {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
+
+
+/* Header */
 
 header {
+
     visibility: hidden !important;
+
     display: none !important;
+
     height: 0 !important;
+
 }
+
+
+/* Toolbar */
 
 [data-testid="stToolbar"] {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
+
+
+/* Decoration */
 
 [data-testid="stDecoration"] {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
+
+
+/* Status */
 
 [data-testid="stStatusWidget"] {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
+
+
+/* Header الداخلي */
 
 [data-testid="stHeader"] {
+
     visibility: hidden !important;
+
     display: none !important;
+
 }
 
-[data-testid="stAppViewContainer"] {
-    padding-top: 0 !important;
-}
 
-[data-testid="stMainBlockContainer"] {
-    padding-top: 1rem !important;
-}
-
-/* ==========================================
+/* ==========================================================
    الحاوية الرئيسية
-   ========================================== */
+   ========================================================== */
 
 .block-container {
+
     max-width: 900px;
+
     width: 94%;
+
     padding-top: 25px !important;
+
     padding-bottom: 30px !important;
+
     margin: auto;
+
 }
 
-/* ==========================================
-   شاشة تسجيل الدخول
-   ========================================== */
+
+/* ==========================================================
+   الشاشة الافتتاحية
+   ========================================================== */
 
 .login-container {
+
     width: 100%;
-    min-height: 80vh;
+
+    min-height: 82vh;
 
     display: flex;
+
     flex-direction: column;
 
     justify-content: center;
+
     align-items: center;
 
     text-align: center;
+
 }
 
-/* اللوجو في شاشة الدخول */
 
-.login-logo {
-    width: 180px;
-    height: 180px;
+/* صندوق اللوجو */
 
-    object-fit: contain;
+.login-logo-container {
 
-    display: block;
+    width: 100%;
 
-    margin: 0 auto 25px auto;
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    margin: 0 auto 20px auto;
+
 }
 
-/* عنوان الأكاديمية في الشاشة الافتتاحية */
+
+/* عنوان الأكاديمية في شاشة الدخول */
 
 .login-main-title {
+
+    width: 100%;
+
     text-align: center;
 
     color: #17365d;
 
     font-size: 32px;
+
     font-weight: 900;
 
     line-height: 1.6;
 
-    margin: 0 auto 10px auto;
+    margin: 0 auto 8px auto;
+
 }
+
 
 /* العنوان الفرعي */
 
 .login-sub-title {
+
+    width: 100%;
+
     text-align: center;
 
     color: #294d7c;
 
     font-size: 22px;
+
     font-weight: 700;
 
     line-height: 1.6;
 
     margin: 0 auto 30px auto;
+
 }
 
-/* صندوق كلمة المرور */
+
+/* صندوق تسجيل الدخول */
 
 .login-box {
+
     width: 100%;
+
     max-width: 450px;
 
     margin: 0 auto;
 
     text-align: right;
+
 }
 
-/* ==========================================
-   الشاشة الداخلية
-   ========================================== */
+
+/* ==========================================================
+   اللوجو في الشاشة الداخلية
+   ========================================================== */
 
 .internal-logo-container {
+
     width: 100%;
 
     display: flex;
 
     justify-content: center;
+
     align-items: center;
 
     text-align: center;
 
-    margin: 5px auto 15px auto;
+    margin: 0 auto 15px auto;
+
 }
 
-/* اللوجو الداخلي */
 
-.internal-logo {
-    width: 145px;
-    height: 145px;
-
-    object-fit: contain;
-
-    display: block;
-
-    margin: 0 auto;
-}
-
-/* عنوان الأكاديمية الداخلي */
+/* ==========================================================
+   العناوين الداخلية
+   ========================================================== */
 
 .main-title {
+
+    width: 100%;
+
     text-align: center;
 
     color: #17365d;
 
     font-size: 27px;
+
     font-weight: 900;
 
     line-height: 1.6;
 
     margin: 5px auto 5px auto;
+
 }
 
-/* العنوان الفرعي الداخلي */
 
 .sub-title {
+
+    width: 100%;
+
     text-align: center;
 
     color: #294d7c;
 
     font-size: 19px;
+
     font-weight: 600;
 
     line-height: 1.6;
 
     margin: 0 auto 25px auto;
+
 }
 
-/* ==========================================
-   العناوين الرئيسية
-   ========================================== */
+
+/* ==========================================================
+   العناوين الرئيسية للأقسام
+   ========================================================== */
 
 .section-title {
 
@@ -229,17 +380,21 @@ header {
     text-align: center;
 
     font-size: 21px;
+
     font-weight: 800;
 
     margin-top: 22px;
+
     margin-bottom: 15px;
 
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+
 }
 
-/* ==========================================
+
+/* ==========================================================
    الأزرار
-   ========================================== */
+   ========================================================== */
 
 .stButton > button {
 
@@ -256,7 +411,11 @@ header {
     font-size: 16px;
 
     font-weight: 700;
+
 }
+
+
+/* زر Primary */
 
 .stButton > button[kind="primary"] {
 
@@ -269,11 +428,13 @@ header {
     color: white;
 
     border: none;
+
 }
 
-/* ==========================================
+
+/* ==========================================================
    حقول الإدخال
-   ========================================== */
+   ========================================================== */
 
 .stTextInput input,
 .stTextArea textarea,
@@ -285,19 +446,72 @@ header {
     text-align: right;
 
     border-radius: 9px;
+
 }
 
-/* ==========================================
+
+/* ==========================================================
+   رفع الملفات
+   ========================================================== */
+
+[data-testid="stFileUploader"] {
+
+    direction: rtl;
+
+    text-align: right;
+
+}
+
+
+[data-testid="stFileUploader"] section {
+
+    border-radius: 10px;
+
+}
+
+
+/* ==========================================================
    الجداول
-   ========================================== */
+   ========================================================== */
 
 [data-testid="stDataFrame"] {
+
     direction: rtl;
+
 }
 
-/* ==========================================
-   الفوتر
-   ========================================== */
+
+/* ==========================================================
+   الرسائل
+   ========================================================== */
+
+.stAlert {
+
+    font-family: 'Cairo', sans-serif !important;
+
+    direction: rtl;
+
+    text-align: right;
+
+}
+
+
+/* ==========================================================
+   Expander
+   ========================================================== */
+
+[data-testid="stExpander"] {
+
+    direction: rtl;
+
+    text-align: right;
+
+}
+
+
+/* ==========================================================
+   الفوتر الخاص بالبرنامج
+   ========================================================== */
 
 .footer {
 
@@ -314,49 +528,1401 @@ header {
     padding: 15px 0;
 
     border-top: 1px solid #d8dee8;
+
 }
 
-/* ==========================================
-   الموبايل
-   ========================================== */
+
+/* ==========================================================
+   الهاتف
+   ========================================================== */
 
 @media (max-width: 600px) {
 
     .block-container {
+
         width: 94%;
+
         padding-top: 15px !important;
+
     }
 
-    .login-logo {
-        width: 140px;
-        height: 140px;
+
+    .login-container {
+
+        min-height: 85vh;
+
     }
+
 
     .login-main-title {
+
         font-size: 22px;
+
     }
+
 
     .login-sub-title {
+
         font-size: 17px;
+
     }
 
-    .internal-logo {
-        width: 120px;
-        height: 120px;
-    }
 
     .main-title {
+
         font-size: 21px;
+
     }
+
 
     .sub-title {
+
         font-size: 16px;
+
     }
+
 
     .section-title {
+
         font-size: 18px;
+
     }
+
 }
 
+
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True
+)
+
+
+# ============================================================
+# شاشة تسجيل الدخول
+# ============================================================
+
+if not st.session_state.authenticated:
+
+    st.markdown(
+        '<div class="login-container">',
+        unsafe_allow_html=True
+    )
+
+
+    # --------------------------------------------------------
+    # اللوجو
+    # --------------------------------------------------------
+
+    if LOGO_PATH.exists():
+
+        st.markdown(
+            '<div class="login-logo-container">',
+            unsafe_allow_html=True
+        )
+
+        st.image(
+            str(LOGO_PATH),
+            width=180
+        )
+
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+    else:
+
+        st.warning(
+            "لم يتم العثور على ملف logo.png بجوار البرنامج."
+        )
+
+
+    # --------------------------------------------------------
+    # العناوين
+    # --------------------------------------------------------
+
+    st.markdown(
+        """
+        <div class="login-main-title">
+            الأكاديمية المهنية للمعلمين – فرع الجيزة
+        </div>
+
+        <div class="login-sub-title">
+            المنظومة الرقمية للوارد والصادر
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # --------------------------------------------------------
+    # تسجيل الدخول
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="login-box">',
+        unsafe_allow_html=True
+    )
+
+
+    password = st.text_input(
+        "كلمة المرور",
+        type="password",
+        placeholder="أدخل كلمة المرور",
+        key="login_password"
+    )
+
+
+    if st.button(
+        "🔐 دخول إلى البرنامج",
+        type="primary",
+        use_container_width=True
+    ):
+
+        if password == APP_PASSWORD:
+
+            st.session_state.authenticated = True
+
+            st.rerun()
+
+        else:
+
+            st.error(
+                "كلمة المرور غير صحيحة."
+            )
+
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+
+    # --------------------------------------------------------
+    # الفوتر في شاشة الدخول
+    # --------------------------------------------------------
+
+    st.markdown(
+        """
+        <div class="footer">
+            ✦ تصميم وتنفيذ أحمد الجنزوري ✦
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+
+    st.stop()
+
+
+# ============================================================
+# الاتصال بقاعدة البيانات
+# ============================================================
+
+def get_connection():
+
+    conn = sqlite3.connect(DB_PATH)
+
+    conn.row_factory = sqlite3.Row
+
+    return conn
+
+
+# ============================================================
+# إنشاء قاعدة البيانات
+# ============================================================
+
+def init_db():
+
+    conn = get_connection()
+
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS documents (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            doc_type TEXT NOT NULL,
+
+            doc_number TEXT NOT NULL,
+
+            doc_date TEXT NOT NULL,
+
+            party TEXT NOT NULL,
+
+            subject TEXT NOT NULL,
+
+            file_path TEXT,
+
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+
+        )
+        """
+    )
+
+    conn.commit()
+
+    conn.close()
+
+
+init_db()
+
+
+# ============================================================
+# الأدوات المساعدة
+# ============================================================
+
+def get_archive_folder(doc_type):
+
+    if doc_type == "وارد":
+
+        return INCOMING_DIR
+
+    return OUTGOING_DIR
+
+
+# ============================================================
+# حفظ الملف المرفق
+# ============================================================
+
+def save_uploaded_file(
+    uploaded_file,
+    doc_type
+):
+
+    if uploaded_file is None:
+
+        return None
+
+
+    folder = get_archive_folder(doc_type)
+
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S_%f"
+    )
+
+
+    original_name = Path(
+        uploaded_file.name
+    ).name
+
+
+    safe_name = (
+        f"{timestamp}_{original_name}"
+    )
+
+
+    file_path = folder / safe_name
+
+
+    with open(
+        file_path,
+        "wb"
+    ) as f:
+
+        f.write(
+            uploaded_file.getbuffer()
+        )
+
+
+    return str(file_path)
+
+
+# ============================================================
+# جلب المستندات
+# ============================================================
+
+def get_documents(
+    doc_type=None,
+    search_text=""
+):
+
+    conn = get_connection()
+
+
+    query = """
+        SELECT *
+        FROM documents
+        WHERE 1=1
+    """
+
+
+    params = []
+
+
+    if doc_type:
+
+        query += """
+            AND doc_type = ?
+        """
+
+        params.append(doc_type)
+
+
+    if search_text:
+
+        query += """
+            AND (
+                doc_number LIKE ?
+                OR party LIKE ?
+                OR subject LIKE ?
+                OR doc_date LIKE ?
+            )
+        """
+
+
+        keyword = f"%{search_text}%"
+
+
+        params.extend(
+            [
+                keyword,
+                keyword,
+                keyword,
+                keyword
+            ]
+        )
+
+
+    query += """
+        ORDER BY id DESC
+    """
+
+
+    rows = conn.execute(
+        query,
+        params
+    ).fetchall()
+
+
+    conn.close()
+
+
+    return rows
+
+
+# ============================================================
+# حذف المستند
+# ============================================================
+
+def delete_document(doc_id):
+
+    conn = get_connection()
+
+
+    row = conn.execute(
+        """
+        SELECT file_path
+        FROM documents
+        WHERE id = ?
+        """,
+        (doc_id,)
+    ).fetchone()
+
+
+    if row:
+
+        file_path = row["file_path"]
+
+
+        if file_path:
+
+            path = Path(file_path)
+
+
+            try:
+
+                archive_root = (
+                    ARCHIVE_DIR.resolve()
+                )
+
+                resolved_path = (
+                    path.resolve()
+                )
+
+
+                if (
+                    archive_root
+                    in resolved_path.parents
+                ):
+
+                    if resolved_path.exists():
+
+                        resolved_path.unlink()
+
+            except OSError:
+
+                pass
+
+
+        conn.execute(
+            """
+            DELETE FROM documents
+            WHERE id = ?
+            """,
+            (doc_id,)
+        )
+
+
+        conn.commit()
+
+
+    conn.close()
+
+
+# ============================================================
+# عرض اللوجو والعناوين الداخلية
+# ============================================================
+
+if LOGO_PATH.exists():
+
+    st.markdown(
+        '<div class="internal-logo-container">',
+        unsafe_allow_html=True
+    )
+
+
+    st.image(
+        str(LOGO_PATH),
+        width=145
+    )
+
+
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+else:
+
+    st.warning(
+        "لم يتم العثور على ملف اللوجو. "
+        "تأكد من وجود logo.png بجوار app.py"
+    )
+
+
+# ============================================================
+# العناوين الداخلية
+# ============================================================
+
+st.markdown(
+    """
+    <div class="main-title">
+        الأكاديمية المهنية للمعلمين – فرع الجيزة
+    </div>
+
+    <div class="sub-title">
+        المنظومة الرقمية للوارد والصادر
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ============================================================
+# القائمة الرئيسية
+# ============================================================
+
+if "page" not in st.session_state:
+
+    st.session_state.page = "الرئيسية"
+
+
+def go_to(page):
+
+    st.session_state.page = page
+
+
+# ============================================================
+# الصفحة الرئيسية
+# ============================================================
+
+if st.session_state.page == "الرئيسية":
+
+
+    # --------------------------------------------------------
+    # الوارد
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📥 سجل الوارد</div>',
+        unsafe_allow_html=True
+    )
+
+
+    col1, col2 = st.columns(2)
+
+
+    with col1:
+
+        if st.button(
+            "➕ إضافة وارد جديد",
+            key="add_incoming"
+        ):
+
+            go_to("إضافة وارد")
+
+            st.rerun()
+
+
+    with col2:
+
+        if st.button(
+            "🏠 الرئيسية",
+            key="home_incoming"
+        ):
+
+            go_to("الرئيسية")
+
+            st.rerun()
+
+
+    # --------------------------------------------------------
+    # الصادر
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📤 سجل الصادر</div>',
+        unsafe_allow_html=True
+    )
+
+
+    col1, col2 = st.columns(2)
+
+
+    with col1:
+
+        if st.button(
+            "➕ إضافة صادر جديد",
+            key="add_outgoing"
+        ):
+
+            go_to("إضافة صادر")
+
+            st.rerun()
+
+
+    with col2:
+
+        if st.button(
+            "📋 عرض السجلات",
+            key="view_all"
+        ):
+
+            go_to("عرض السجلات")
+
+            st.rerun()
+
+
+    # --------------------------------------------------------
+    # البحث
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">🔎 البحث في الأرشيف</div>',
+        unsafe_allow_html=True
+    )
+
+
+    search_text = st.text_input(
+        "ابحث برقم الخطاب أو الجهة أو الموضوع",
+        key="main_search"
+    )
+
+
+    if st.button(
+        "🔎 بحث",
+        key="main_search_button",
+        type="primary"
+    ):
+
+        st.session_state.search_query = search_text
+
+        go_to("نتائج البحث")
+
+        st.rerun()
+
+
+# ============================================================
+# إضافة وارد أو صادر
+# ============================================================
+
+elif st.session_state.page in [
+    "إضافة وارد",
+    "إضافة صادر"
+]:
+
+
+    doc_type = (
+        "وارد"
+        if st.session_state.page == "إضافة وارد"
+        else "صادر"
+    )
+
+
+    st.markdown(
+        f'<div class="section-title">➕ تسجيل {doc_type} جديد</div>',
+        unsafe_allow_html=True
+    )
+
+
+    with st.form(
+        "add_document_form",
+        clear_on_submit=True
+    ):
+
+
+        col1, col2 = st.columns(2)
+
+
+        with col1:
+
+            doc_number = st.text_input(
+                "رقم الخطاب *",
+                placeholder="أدخل رقم الخطاب"
+            )
+
+
+        with col2:
+
+            doc_date = st.date_input(
+                "تاريخ الخطاب *",
+                value=date.today(),
+                format="YYYY/MM/DD"
+            )
+
+
+        col1, col2 = st.columns(2)
+
+
+        with col1:
+
+            party = st.text_input(
+                "الجهة *",
+                placeholder="اسم الجهة"
+            )
+
+
+        with col2:
+
+            subject = st.text_input(
+                "موضوع الخطاب *",
+                placeholder="موضوع الخطاب"
+            )
+
+
+        uploaded_file = st.file_uploader(
+            "إرفاق ملف الخطاب PDF (اختياري)",
+            type=["pdf"],
+            help="يمكن إرفاق نسخة PDF من الخطاب"
+        )
+
+
+        submitted = st.form_submit_button(
+            "💾 حفظ المستند",
+            type="primary",
+            use_container_width=True
+        )
+
+
+        if submitted:
+
+
+            if not doc_number.strip():
+
+                st.error(
+                    "من فضلك أدخل رقم الخطاب."
+                )
+
+
+            elif not party.strip():
+
+                st.error(
+                    "من فضلك أدخل اسم الجهة."
+                )
+
+
+            elif not subject.strip():
+
+                st.error(
+                    "من فضلك أدخل موضوع الخطاب."
+                )
+
+
+            else:
+
+                file_path = None
+
+
+                try:
+
+
+                    # حفظ الملف
+
+                    file_path = save_uploaded_file(
+                        uploaded_file,
+                        doc_type
+                    )
+
+
+                    # حفظ البيانات
+
+                    conn = get_connection()
+
+
+                    conn.execute(
+                        """
+                        INSERT INTO documents
+                        (
+                            doc_type,
+                            doc_number,
+                            doc_date,
+                            party,
+                            subject,
+                            file_path
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            doc_type,
+                            doc_number.strip(),
+                            doc_date.strftime(
+                                "%Y-%m-%d"
+                            ),
+                            party.strip(),
+                            subject.strip(),
+                            file_path
+                        )
+                    )
+
+
+                    conn.commit()
+
+                    conn.close()
+
+
+                    st.success(
+                        f"تم حفظ الخطاب {doc_type} بنجاح."
+                    )
+
+
+                    st.session_state.page = "الرئيسية"
+
+                    st.rerun()
+
+
+                except Exception as e:
+
+                    st.error(
+                        f"حدث خطأ أثناء الحفظ: {e}"
+                    )
+
+
+                    # حذف الملف إذا فشل الحفظ
+
+                    if file_path:
+
+                        try:
+
+                            Path(
+                                file_path
+                            ).unlink(
+                                missing_ok=True
+                            )
+
+                        except OSError:
+
+                            pass
+
+
+    if st.button(
+        "⬅️ العودة للرئيسية"
+    ):
+
+        go_to("الرئيسية")
+
+        st.rerun()
+
+
+# ============================================================
+# عرض السجلات
+# ============================================================
+
+elif st.session_state.page == "عرض السجلات":
+
+
+    st.markdown(
+        '<div class="section-title">📋 جميع السجلات</div>',
+        unsafe_allow_html=True
+    )
+
+
+    filter_type = st.selectbox(
+        "نوع المستند",
+        ["الكل", "وارد", "صادر"]
+    )
+
+
+    selected_type = (
+        None
+        if filter_type == "الكل"
+        else filter_type
+    )
+
+
+    rows = get_documents(
+        selected_type
+    )
+
+
+    if rows:
+
+
+        for row in rows:
+
+
+            with st.expander(
+                f"{row['doc_type']} | "
+                f"رقم {row['doc_number']} | "
+                f"{row['party']}"
+            ):
+
+
+                st.write(
+                    f"**رقم الخطاب:** "
+                    f"{row['doc_number']}"
+                )
+
+
+                st.write(
+                    f"**التاريخ:** "
+                    f"{row['doc_date']}"
+                )
+
+
+                st.write(
+                    f"**الجهة:** "
+                    f"{row['party']}"
+                )
+
+
+                st.write(
+                    f"**الموضوع:** "
+                    f"{row['subject']}"
+                )
+
+
+                # ملف PDF
+
+                if row["file_path"]:
+
+                    file_path = Path(
+                        row["file_path"]
+                    )
+
+
+                    if file_path.exists():
+
+                        with open(
+                            file_path,
+                            "rb"
+                        ) as f:
+
+                            st.download_button(
+                                label="📥 تنزيل ملف الخطاب",
+                                data=f.read(),
+                                file_name=file_path.name,
+                                mime="application/pdf",
+                                key=f"download_{row['id']}"
+                            )
+
+                    else:
+
+                        st.warning(
+                            "ملف الخطاب غير موجود في الأرشيف."
+                        )
+
+
+                # أزرار التعديل والحذف
+
+                col1, col2 = st.columns(2)
+
+
+                with col1:
+
+                    if st.button(
+                        "✏️ تعديل",
+                        key=f"edit_{row['id']}"
+                    ):
+
+                        st.session_state.edit_id = row["id"]
+
+                        go_to("تعديل مستند")
+
+                        st.rerun()
+
+
+                with col2:
+
+                    if st.button(
+                        "🗑️ حذف",
+                        key=f"delete_{row['id']}"
+                    ):
+
+                        st.session_state.delete_id = row["id"]
+
+                        go_to("تأكيد الحذف")
+
+                        st.rerun()
+
+
+    else:
+
+        st.info(
+            "لا توجد سجلات مسجلة حتى الآن."
+        )
+
+
+    if st.button(
+        "⬅️ العودة للرئيسية"
+    ):
+
+        go_to("الرئيسية")
+
+        st.rerun()
+
+
+# ============================================================
+# نتائج البحث
+# ============================================================
+
+elif st.session_state.page == "نتائج البحث":
+
+
+    st.markdown(
+        '<div class="section-title">🔎 نتائج البحث</div>',
+        unsafe_allow_html=True
+    )
+
+
+    search_query = st.session_state.get(
+        "search_query",
+        ""
+    )
+
+
+    rows = get_documents(
+        search_text=search_query
+    )
+
+
+    if rows:
+
+
+        st.success(
+            f"عدد النتائج: {len(rows)}"
+        )
+
+
+        for row in rows:
+
+
+            with st.expander(
+                f"{row['doc_type']} | "
+                f"{row['doc_number']} | "
+                f"{row['party']}"
+            ):
+
+
+                st.write(
+                    f"**التاريخ:** "
+                    f"{row['doc_date']}"
+                )
+
+
+                st.write(
+                    f"**الجهة:** "
+                    f"{row['party']}"
+                )
+
+
+                st.write(
+                    f"**الموضوع:** "
+                    f"{row['subject']}"
+                )
+
+
+                if row["file_path"]:
+
+                    file_path = Path(
+                        row["file_path"]
+                    )
+
+
+                    if file_path.exists():
+
+                        with open(
+                            file_path,
+                            "rb"
+                        ) as f:
+
+                            st.download_button(
+                                "📥 تنزيل الخطاب",
+                                data=f.read(),
+                                file_name=file_path.name,
+                                mime="application/pdf",
+                                key=f"search_download_{row['id']}"
+                            )
+
+
+    else:
+
+        st.warning(
+            "لا توجد نتائج مطابقة للبحث."
+        )
+
+
+    if st.button(
+        "⬅️ العودة للرئيسية"
+    ):
+
+        go_to("الرئيسية")
+
+        st.rerun()
+
+
+# ============================================================
+# تعديل مستند
+# ============================================================
+
+elif st.session_state.page == "تعديل مستند":
+
+
+    doc_id = st.session_state.get(
+        "edit_id"
+    )
+
+
+    conn = get_connection()
+
+
+    row = conn.execute(
+        """
+        SELECT *
+        FROM documents
+        WHERE id = ?
+        """,
+        (doc_id,)
+    ).fetchone()
+
+
+    conn.close()
+
+
+    st.markdown(
+        '<div class="section-title">✏️ تعديل بيانات المستند</div>',
+        unsafe_allow_html=True
+    )
+
+
+    if row:
+
+
+        with st.form(
+            "edit_document_form"
+        ):
+
+
+            col1, col2 = st.columns(2)
+
+
+            with col1:
+
+                new_number = st.text_input(
+                    "رقم الخطاب",
+                    value=row["doc_number"]
+                )
+
+
+            with col2:
+
+                try:
+
+                    current_date = date.fromisoformat(
+                        row["doc_date"]
+                    )
+
+                except ValueError:
+
+                    current_date = date.today()
+
+
+                new_date = st.date_input(
+                    "تاريخ الخطاب",
+                    value=current_date,
+                    format="YYYY/MM/DD"
+                )
+
+
+            new_party = st.text_input(
+                "الجهة",
+                value=row["party"]
+            )
+
+
+            new_subject = st.text_input(
+                "موضوع الخطاب",
+                value=row["subject"]
+            )
+
+
+            new_file = st.file_uploader(
+                "استبدال ملف PDF (اختياري)",
+                type=["pdf"]
+            )
+
+
+            save_changes = st.form_submit_button(
+                "💾 حفظ التعديلات",
+                type="primary",
+                use_container_width=True
+            )
+
+
+            if save_changes:
+
+
+                if (
+                    not new_number.strip()
+                    or not new_party.strip()
+                    or not new_subject.strip()
+                ):
+
+                    st.error(
+                        "يرجى استكمال جميع البيانات المطلوبة."
+                    )
+
+
+                else:
+
+
+                    old_file_path = row["file_path"]
+
+                    updated_file_path = old_file_path
+
+
+                    try:
+
+
+                        # حفظ الملف الجديد
+
+                        if new_file is not None:
+
+                            updated_file_path = (
+                                save_uploaded_file(
+                                    new_file,
+                                    row["doc_type"]
+                                )
+                            )
+
+
+                        # تحديث قاعدة البيانات
+
+                        conn = get_connection()
+
+
+                        conn.execute(
+                            """
+                            UPDATE documents
+
+                            SET
+                                doc_number = ?,
+                                doc_date = ?,
+                                party = ?,
+                                subject = ?,
+                                file_path = ?
+
+                            WHERE id = ?
+                            """,
+                            (
+                                new_number.strip(),
+
+                                new_date.strftime(
+                                    "%Y-%m-%d"
+                                ),
+
+                                new_party.strip(),
+
+                                new_subject.strip(),
+
+                                updated_file_path,
+
+                                doc_id
+                            )
+                        )
+
+
+                        conn.commit()
+
+                        conn.close()
+
+
+                        # حذف الملف القديم
+
+                        if (
+                            new_file is not None
+                            and old_file_path
+                        ):
+
+
+                            old_path = Path(
+                                old_file_path
+                            )
+
+
+                            try:
+
+                                archive_root = (
+                                    ARCHIVE_DIR.resolve()
+                                )
+
+                                old_resolved = (
+                                    old_path.resolve()
+                                )
+
+
+                                if (
+                                    old_resolved.exists()
+                                    and archive_root
+                                    in old_resolved.parents
+                                ):
+
+                                    old_resolved.unlink()
+
+                            except OSError:
+
+                                pass
+
+
+                        st.success(
+                            "تم تعديل المستند بنجاح."
+                        )
+
+
+                        go_to(
+                            "عرض السجلات"
+                        )
+
+
+                        st.rerun()
+
+
+                    except Exception as e:
+
+                        st.error(
+                            f"حدث خطأ أثناء التعديل: {e}"
+                        )
+
+
+    else:
+
+        st.error(
+            "المستند غير موجود."
+        )
+
+
+    if st.button(
+        "⬅️ العودة للسجلات"
+    ):
+
+        go_to("عرض السجلات")
+
+        st.rerun()
+
+
+# ============================================================
+# تأكيد حذف مستند
+# ============================================================
+
+elif st.session_state.page == "تأكيد الحذف":
+
+
+    doc_id = st.session_state.get(
+        "delete_id"
+    )
+
+
+    st.markdown(
+        '<div class="section-title">🗑️ حذف مستند</div>',
+        unsafe_allow_html=True
+    )
+
+
+    st.warning(
+        "هل أنت متأكد من حذف هذا المستند "
+        "وملف PDF المرتبط به؟ "
+        "لا يمكن التراجع عن هذه العملية."
+    )
+
+
+    col1, col2 = st.columns(2)
+
+
+    with col1:
+
+        if st.button(
+            "نعم، حذف المستند",
+            type="primary"
+        ):
+
+            delete_document(
+                doc_id
+            )
+
+
+            st.success(
+                "تم حذف المستند بنجاح."
+            )
+
+
+            go_to(
+                "عرض السجلات"
+            )
+
+
+            st.rerun()
+
+
+    with col2:
+
+        if st.button(
+            "إلغاء"
+        ):
+
+            go_to(
+                "عرض السجلات"
+            )
+
+            st.rerun()
+
+
+# ============================================================
+# الفوتر
+# ============================================================
+
+st.markdown(
+    """
+    <div class="footer">
+        ✦ تصميم وتنفيذ أحمد الجنزوري ✦
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+```
