@@ -538,7 +538,7 @@ with col2:
 # 9. شاشة الوارد / الصادر
 # =========================================================
 
-elif st.session_state.page in ["incoming", "outgoing"]:
+elif st.session_state.page in [incoming", "outgoing]:
 
     current_type = (
         "وارد"
