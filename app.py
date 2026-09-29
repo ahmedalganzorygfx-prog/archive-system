@@ -1207,27 +1207,27 @@ elif st.session_state.page == "السجلات":
                     <div class="info-card">
 
                         <div class="record-title">
-                            📥 بيانات المستند
+                            {icon} بيانات المستند
                         </div>
 
                         <div class="record-line">
-                            <b>النوع:</b> وارد
+                            <b>النوع:</b> {row["doc_type"]}
                         </div>
 
                         <div class="record-line">
-                            <b>رقم المستند:</b> 122
+                            <b>رقم المستند:</b> <span dir="ltr">{row["doc_number"]}</span>
                         </div>
 
                         <div class="record-line">
-                            <b>التاريخ:</b> 29/09/2026
+                            <b>التاريخ:</b> <span dir="ltr">{row["doc_date"]}</span>
                         </div>
 
                         <div class="record-line">
-                            <b>الجهة:</b> الاكاديمية
+                            <b>الجهة:</b> {row["party"]}
                         </div>
 
                         <div class="record-line">
-                            <b>الموضوع:</b> اعادة تعيين
+                            <b>الموضوع:</b> {row["subject"]}
                         </div>
 
                     </div>
