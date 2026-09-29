@@ -1198,11 +1198,11 @@ elif st.session_state.page == "السجلات":
                 f"{row['subject']}"
             )
 
-            with st.expander(
+    with st.expander(
                 expander_title
             ):
 
-           st.markdown(
+    st.markdown(
     f"""
     <div class="info-card">
 
