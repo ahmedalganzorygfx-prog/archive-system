@@ -64,8 +64,8 @@ html, body, [class*="css"] {
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin-top: 5px;
-    margin-bottom: 18px;
+    margin: 5px auto 18px auto;
+    text-align: center;
 }
 
 /* عناوين الأكاديمية */
@@ -311,7 +311,7 @@ if LOGO_PATH.exists():
     with center_col:
         st.image(
             str(LOGO_PATH),
-            width=250
+            width=160
         )
 
 else:
