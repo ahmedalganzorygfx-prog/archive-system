@@ -1,8 +1,8 @@
 import streamlit as st
 import sqlite3
-import base64
 from pathlib import Path
 from datetime import date, datetime
+from html import escape
 
 
 # ============================================================
@@ -43,24 +43,16 @@ APP_PASSWORD = "1234"
 
 
 # ============================================================
-# دالة تحويل الصورة إلى Base64
-# ============================================================
-
-def get_image_base64(image_path):
-    try:
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode("utf-8")
-    except Exception:
-        return None
-
-
-# ============================================================
 # CSS
 # ============================================================
 
 st.markdown(
     """
     <style>
+
+    /* ========================================================
+       الإعداد العام
+       ======================================================== */
 
     html,
     body {
@@ -79,7 +71,7 @@ st.markdown(
     .block-container {
         max-width: 900px !important;
         width: 94% !important;
-        padding-top: 10px !important;
+        padding-top: 8px !important;
         padding-bottom: 25px !important;
         margin: 0 auto !important;
     }
@@ -96,88 +88,41 @@ st.markdown(
         height: 0 !important;
     }
 
-    .login-container {
+
+    /* ========================================================
+       شاشة الدخول
+       ======================================================== */
+
+    .login-logo-space {
         width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
         text-align: center;
-        padding-top: 10px;
-        padding-bottom: 20px;
-        margin: 0 auto;
-    }
-
-    .login-logo-container {
-        width: 100%;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
-        margin: 0 auto 12px auto !important;
-        padding: 0 !important;
-    }
-
-    .login-logo-container img {
-        display: block !important;
-        width: 180px !important;
-        height: 180px !important;
-        object-fit: contain;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        position: relative !important;
-        left: auto !important;
-        right: auto !important;
+        margin: 0 auto 8px auto;
     }
 
     .login-main-title {
         width: 100%;
         text-align: center !important;
         color: #17365d;
-        font-size: 32px;
+        font-size: 30px;
         font-weight: 900;
         line-height: 1.5;
-        margin: 0 auto 4px auto;
+        margin: 0 auto 3px auto;
     }
 
     .login-sub-title {
         width: 100%;
         text-align: center !important;
         color: #294d7c;
-        font-size: 21px;
+        font-size: 20px;
         font-weight: 700;
         line-height: 1.5;
         margin: 0 auto 18px auto;
     }
 
-    .login-box {
-        width: 100%;
-        max-width: 430px;
-        margin: 0 auto;
-        text-align: right;
-    }
 
-    .internal-logo-container {
-        width: 100%;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        text-align: center !important;
-        margin: 0 auto 8px auto !important;
-        padding: 0 !important;
-    }
-
-    .internal-logo-container img {
-        display: block !important;
-        width: 145px !important;
-        height: 145px !important;
-        object-fit: contain;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        position: relative !important;
-        left: auto !important;
-        right: auto !important;
-    }
+    /* ========================================================
+       رأس البرنامج
+       ======================================================== */
 
     .main-title {
         width: 100%;
@@ -186,18 +131,23 @@ st.markdown(
         font-size: 27px;
         font-weight: 900;
         line-height: 1.5;
-        margin: 0 auto 3px auto;
+        margin: 0 auto 2px auto;
     }
 
     .sub-title {
         width: 100%;
         text-align: center !important;
         color: #294d7c;
-        font-size: 19px;
+        font-size: 18px;
         font-weight: 600;
         line-height: 1.5;
         margin: 0 auto 18px auto;
     }
+
+
+    /* ========================================================
+       عناوين الأقسام
+       ======================================================== */
 
     .section-title {
         background: linear-gradient(
@@ -205,87 +155,269 @@ st.markdown(
             #17365d,
             #294d7c
         );
+
         color: white;
+
         border-radius: 10px;
+
         padding: 10px 15px;
+
         margin-top: 12px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+
         font-size: 20px;
         font-weight: 800;
+
         text-align: right;
     }
 
-    .info-card {
-        background: white;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 12px;
+
+    /* ========================================================
+       بطاقة بيانات المستند
+       ======================================================== */
+
+    .document-card {
+        width: 100%;
+        box-sizing: border-box;
+
+        background: #ffffff;
+
+        border: 1px solid #d9e1ea;
+
+        border-radius: 13px;
+
+        margin: 0 0 10px 0;
+
+        overflow: hidden;
+
         box-shadow:
-            0 2px 8px rgba(0, 0, 0, 0.08);
+            0 2px 8px rgba(0, 0, 0, 0.06);
+
+        direction: rtl;
+        text-align: right;
+    }
+
+
+    /* رأس البطاقة */
+
+    .document-card-header {
+        display: flex;
+
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 10px;
+
+        background: #f3f7fb;
+
+        border-bottom: 1px solid #dce4ed;
+
+        padding: 12px 15px;
+    }
+
+    .document-card-title {
+        color: #17365d;
+
+        font-size: 18px;
+
+        font-weight: 900;
+
+        line-height: 1.5;
+    }
+
+    .document-type-badge {
+        background: #17365d;
+
+        color: white;
+
+        border-radius: 20px;
+
+        padding: 4px 13px;
+
+        font-size: 13px;
+
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+
+    /* جسم البطاقة */
+
+    .document-card-body {
+        padding: 13px;
+    }
+
+
+    /* شبكة البيانات */
+
+    .document-grid {
+        width: 100%;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        gap: 9px;
+
+        direction: rtl;
+    }
+
+
+    /* خانة البيانات */
+
+    .document-field {
+        background: #f8fafc;
+
         border: 1px solid #e5eaf0;
 
-        direction: rtl !important;
-        text-align: right !important;
-    }
+        border-radius: 9px;
 
-    .record-title {
-        color: #17365d;
-        font-size: 18px;
-        font-weight: 800;
-        margin-bottom: 8px;
+        padding: 9px 11px;
+
+        min-width: 0;
+
+        box-sizing: border-box;
+
         direction: rtl;
+
         text-align: right;
     }
 
-    .record-line {
-        font-size: 15px;
-        color: #333;
-        margin: 4px 0;
-        line-height: 1.7;
-        direction: rtl;
-        text-align: right;
-    }
+    .document-field-label {
+        color: #687586;
 
-    .custom-footer {
-        width: 100%;
-        text-align: center;
-        color: #6b7280;
-        font-size: 13px;
-        margin-top: 25px;
-        padding-top: 10px;
-        border-top: 1px solid #e5e7eb;
-    }
+        font-size: 12px;
 
-    div[data-testid="stTextInput"] input,
-    div[data-testid="stTextArea"] textarea {
-        direction: rtl;
-        text-align: right;
-    }
-
-    div[data-testid="stDateInput"] input {
-        direction: rtl;
-        text-align: right;
-    }
-
-    .stButton > button {
-        width: 100%;
-        border-radius: 8px;
-        min-height: 42px;
         font-weight: 700;
+
+        margin-bottom: 3px;
+
+        line-height: 1.5;
     }
 
-    section[data-testid="stFileUploader"] {
+    .document-field-value {
+        color: #17365d;
+
+        font-size: 15px;
+
+        font-weight: 800;
+
+        line-height: 1.7;
+
+        word-break: break-word;
+
+        overflow-wrap: anywhere;
+    }
+
+
+    /* موضوع المستند */
+
+    .document-subject {
+        grid-column: 1 / -1;
+
+        background: #f8fafc;
+
+        border: 1px solid #e5eaf0;
+
+        border-radius: 9px;
+
+        padding: 10px 11px;
+
+        box-sizing: border-box;
+
         direction: rtl;
+
         text-align: right;
     }
+
+    .document-subject-value {
+        color: #17365d;
+
+        font-size: 15px;
+
+        font-weight: 700;
+
+        line-height: 1.9;
+
+        word-break: break-word;
+
+        overflow-wrap: anywhere;
+
+        white-space: normal;
+    }
+
+
+    /* ملف PDF */
+
+    .document-file {
+        margin-top: 10px;
+
+        background: #fff8e8;
+
+        border: 1px solid #f0dfad;
+
+        border-radius: 9px;
+
+        padding: 9px 11px;
+
+        color: #765d16;
+
+        font-size: 14px;
+
+        font-weight: 700;
+
+        line-height: 1.7;
+
+        direction: rtl;
+
+        text-align: right;
+
+        word-break: break-word;
+
+        overflow-wrap: anywhere;
+    }
+
+    .document-no-file {
+        margin-top: 10px;
+
+        background: #f5f6f8;
+
+        border: 1px solid #e2e5e9;
+
+        border-radius: 9px;
+
+        padding: 9px 11px;
+
+        color: #68707a;
+
+        font-size: 14px;
+
+        font-weight: 700;
+
+        direction: rtl;
+
+        text-align: right;
+    }
+
+
+    /* ========================================================
+       Expander
+       ======================================================== */
 
     div[data-testid="stExpander"] {
         border-radius: 10px !important;
-        border: 1px solid #e1e7ef !important;
+
+        border: 1px solid #dce3eb !important;
+
         background: white !important;
-        margin-bottom: 10px !important;
+
+        margin-bottom: 12px !important;
 
         direction: rtl !important;
+
         text-align: right !important;
     }
 
@@ -302,16 +434,99 @@ st.markdown(
     div[data-testid="stExpander"] summary p {
         direction: rtl !important;
         text-align: right !important;
+
+        font-weight: 800 !important;
+
+        color: #17365d !important;
     }
+
+
+    /* ========================================================
+       الحقول
+       ======================================================== */
+
+    div[data-testid="stTextInput"] input,
+    div[data-testid="stTextArea"] textarea {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+
+    div[data-testid="stDateInput"] input {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+
+    div[data-baseweb="select"] {
+        direction: rtl !important;
+    }
+
+    section[data-testid="stFileUploader"] {
+        direction: rtl;
+        text-align: right;
+    }
+
+
+    /* ========================================================
+       الأزرار
+       ======================================================== */
+
+    .stButton > button {
+        width: 100%;
+
+        border-radius: 8px;
+
+        min-height: 42px;
+
+        font-weight: 700;
+    }
+
+    div[data-testid="stDownloadButton"] button {
+        width: 100% !important;
+
+        border-radius: 8px !important;
+
+        min-height: 42px !important;
+
+        font-weight: 700 !important;
+    }
+
+
+    /* ========================================================
+       التنبيهات
+       ======================================================== */
 
     div[data-testid="stAlert"] {
         direction: rtl;
         text-align: right;
     }
 
-    div[data-baseweb="select"] {
-        direction: rtl;
+
+    /* ========================================================
+       الفوتر
+       ======================================================== */
+
+    .custom-footer {
+        width: 100%;
+
+        text-align: center;
+
+        color: #6b7280;
+
+        font-size: 13px;
+
+        margin-top: 25px;
+
+        padding-top: 10px;
+
+        border-top: 1px solid #e5e7eb;
+
+        line-height: 1.8;
     }
+
+
+    /* ========================================================
+       الموبايل
+       ======================================================== */
 
     @media (max-width: 600px) {
 
@@ -320,26 +535,12 @@ st.markdown(
             padding-top: 5px !important;
         }
 
-        .login-container {
-            padding-top: 5px;
-        }
-
-        .login-logo-container img {
-            width: 135px !important;
-            height: 135px !important;
-        }
-
         .login-main-title {
-            font-size: 23px;
+            font-size: 22px;
         }
 
         .login-sub-title {
-            font-size: 17px;
-        }
-
-        .internal-logo-container img {
-            width: 110px !important;
-            height: 110px !important;
+            font-size: 16px;
         }
 
         .main-title {
@@ -352,6 +553,36 @@ st.markdown(
 
         .section-title {
             font-size: 17px;
+        }
+
+        .document-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .document-subject {
+            grid-column: auto;
+        }
+
+        .document-card-header {
+            padding: 10px;
+        }
+
+        .document-card-title {
+            font-size: 16px;
+        }
+
+        .document-type-badge {
+            font-size: 11px;
+            padding: 3px 9px;
+        }
+
+        .document-card-body {
+            padding: 10px;
+        }
+
+        .document-field-value,
+        .document-subject-value {
+            font-size: 14px;
         }
 
     }
@@ -375,6 +606,49 @@ if "page" not in st.session_state:
 if "search_query" not in st.session_state:
     st.session_state.search_query = ""
 
+if "view_filter" not in st.session_state:
+    st.session_state.view_filter = "الكل"
+
+if "edit_id" not in st.session_state:
+    st.session_state.edit_id = None
+
+if "delete_id" not in st.session_state:
+    st.session_state.delete_id = None
+
+
+# ============================================================
+# دالة عرض الشعار
+# ============================================================
+
+def show_logo(width=150):
+
+    if LOGO_PATH.exists():
+
+        col1, col2, col3 = st.columns([1, 2, 1])
+
+        with col2:
+
+            st.image(
+                str(LOGO_PATH),
+                width=width
+            )
+
+    else:
+
+        st.markdown(
+            """
+            <div style="
+                width:100%;
+                text-align:center;
+                font-size:70px;
+                margin:5px auto 10px auto;
+            ">
+                📁
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
 
 # ============================================================
 # شاشة تسجيل الدخول
@@ -382,45 +656,7 @@ if "search_query" not in st.session_state:
 
 if not st.session_state.authenticated:
 
-    logo_base64 = None
-
-    if LOGO_PATH.exists():
-        logo_base64 = get_image_base64(LOGO_PATH)
-
-    st.markdown(
-        '<div class="login-container">',
-        unsafe_allow_html=True
-    )
-
-    if logo_base64:
-
-        st.markdown(
-            f"""
-            <div class="login-logo-container">
-                <img
-                    src="data:image/png;base64,{logo_base64}"
-                    alt="شعار الأكاديمية"
-                >
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    else:
-
-        st.markdown(
-            """
-            <div style="
-                font-size:80px;
-                text-align:center;
-                width:100%;
-                margin-bottom:10px;
-            ">
-                📁
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    show_logo(180)
 
     st.markdown(
         """
@@ -435,28 +671,33 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    st.markdown(
-        '<div class="login-box">',
-        unsafe_allow_html=True
-    )
+    # ========================================================
+    # نموذج تسجيل الدخول
+    # الضغط على Enter يعمل هنا مباشرة
+    # ========================================================
 
-    with st.form(key="login_form"):
+    col1, col2, col3 = st.columns([1, 3, 1])
 
-        password = st.text_input(
-            "🔐 كلمة المرور",
-            type="password",
-            placeholder="أدخل كلمة المرور"
-        )
+    with col2:
 
-        login_clicked = st.form_submit_button(
-            "🔓 تسجيل الدخول",
-            type="primary"
-        )
+        with st.form(
+            key="login_form",
+            clear_on_submit=False,
+            enter_to_submit=True
+        ):
 
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+            password = st.text_input(
+                "🔐 كلمة المرور",
+                type="password",
+                placeholder="أدخل كلمة المرور ثم اضغط Enter",
+                key="login_password"
+            )
+
+            login_clicked = st.form_submit_button(
+                "🔓 تسجيل الدخول",
+                type="primary"
+            )
+
 
     if login_clicked:
 
@@ -468,19 +709,19 @@ if not st.session_state.authenticated:
 
         else:
 
-            st.error("❌ كلمة المرور غير صحيحة")
+            st.error(
+                "❌ كلمة المرور غير صحيحة"
+            )
+
 
     st.markdown(
         """
         <div class="custom-footer">
+            الأكاديمية المهنية للمعلمين - فرع الجيزة
+            <br>
             ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
         </div>
         """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        '</div>',
         unsafe_allow_html=True
     )
 
@@ -507,6 +748,7 @@ def init_db():
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS documents (
+
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             doc_type TEXT NOT NULL,
@@ -535,7 +777,7 @@ init_db()
 
 
 # ============================================================
-# الترقيم التلقائي للمستندات
+# الترقيم التلقائي
 # ============================================================
 
 def get_next_document_number(doc_type):
@@ -556,28 +798,23 @@ def get_next_document_number(doc_type):
     max_number = row[0]
 
     if doc_type == "وارد":
-
         start_number = 961
-
     else:
-
         start_number = 1160
 
     if max_number is None or max_number < start_number:
-
         return str(start_number)
 
     return str(max_number + 1)
 
 
 # ============================================================
-# وظائف مساعدة
+# وظائف الملفات
 # ============================================================
 
 def get_archive_folder(doc_type):
 
     if doc_type == "وارد":
-
         return INCOMING_DIR
 
     return OUTGOING_DIR
@@ -586,7 +823,6 @@ def get_archive_folder(doc_type):
 def save_uploaded_file(uploaded_file, doc_type):
 
     if uploaded_file is None:
-
         return None
 
     folder = get_archive_folder(doc_type)
@@ -595,7 +831,9 @@ def save_uploaded_file(uploaded_file, doc_type):
         "%Y%m%d_%H%M%S_%f"
     )
 
-    original_name = Path(uploaded_file.name).name
+    original_name = Path(
+        uploaded_file.name
+    ).name
 
     safe_name = f"{timestamp}_{original_name}"
 
@@ -609,6 +847,35 @@ def save_uploaded_file(uploaded_file, doc_type):
 
     return str(file_path)
 
+
+def delete_old_file(file_path):
+
+    if not file_path:
+        return
+
+    try:
+
+        path = Path(
+            file_path
+        ).resolve()
+
+        archive_root = ARCHIVE_DIR.resolve()
+
+        if (
+            archive_root in path.parents
+            and path.exists()
+        ):
+
+            path.unlink()
+
+    except Exception:
+
+        pass
+
+
+# ============================================================
+# وظائف قاعدة البيانات
+# ============================================================
 
 def get_documents(
     doc_type=None,
@@ -706,18 +973,9 @@ def delete_document(document_id):
 
         if file_path:
 
-            try:
-
-                path = Path(file_path).resolve()
-
-                archive_root = ARCHIVE_DIR.resolve()
-
-                if archive_root in path.parents and path.exists():
-
-                    path.unlink()
-
-            except Exception:
-                pass
+            delete_old_file(
+                file_path
+            )
 
     conn.execute(
         """
@@ -792,26 +1050,9 @@ def update_document(
     conn.close()
 
 
-def delete_old_file(file_path):
-
-    if not file_path:
-
-        return
-
-    try:
-
-        path = Path(file_path).resolve()
-
-        archive_root = ARCHIVE_DIR.resolve()
-
-        if archive_root in path.parents and path.exists():
-
-            path.unlink()
-
-    except Exception:
-
-        pass
-
+# ============================================================
+# الانتقال بين الصفحات
+# ============================================================
 
 def go_to(page):
 
@@ -821,33 +1062,243 @@ def go_to(page):
 
 
 # ============================================================
+# عرض بطاقة المستند
+# ============================================================
+
+def render_document_card(row):
+
+    doc_type = str(
+        row["doc_type"] or ""
+    )
+
+    doc_number = str(
+        row["doc_number"] or ""
+    )
+
+    doc_date = str(
+        row["doc_date"] or ""
+    )
+
+    party = str(
+        row["party"] or ""
+    )
+
+    subject = str(
+        row["subject"] or ""
+    )
+
+    icon = (
+        "📥"
+        if doc_type == "وارد"
+        else "📤"
+    )
+
+    # حماية النصوص القادمة من قاعدة البيانات
+    doc_type_html = escape(doc_type)
+    doc_number_html = escape(doc_number)
+    doc_date_html = escape(doc_date)
+    party_html = escape(party)
+    subject_html = escape(subject)
+
+    if row["file_path"]:
+
+        file_name = Path(
+            row["file_path"]
+        ).name
+
+        file_name_html = escape(
+            file_name
+        )
+
+        file_html = f"""
+            <div class="document-file">
+                📎 يوجد ملف PDF مرفق:
+                <b>{file_name_html}</b>
+            </div>
+        """
+
+    else:
+
+        file_html = """
+            <div class="document-no-file">
+                📄 لا يوجد ملف PDF مرفق
+            </div>
+        """
+
+
+    st.markdown(
+        f"""
+        <div class="document-card">
+
+            <!-- رأس البطاقة -->
+
+            <div class="document-card-header">
+
+                <div class="document-card-title">
+                    {icon} بيانات المستند
+                </div>
+
+                <div class="document-type-badge">
+                    {doc_type_html}
+                </div>
+
+            </div>
+
+
+            <!-- جسم البطاقة -->
+
+            <div class="document-card-body">
+
+                <div class="document-grid">
+
+                    <!-- رقم المستند -->
+
+                    <div class="document-field">
+
+                        <div class="document-field-label">
+                            رقم المستند
+                        </div>
+
+                        <div class="document-field-value">
+                            {doc_number_html}
+                        </div>
+
+                    </div>
+
+
+                    <!-- التاريخ -->
+
+                    <div class="document-field">
+
+                        <div class="document-field-label">
+                            تاريخ المستند
+                        </div>
+
+                        <div class="document-field-value">
+                            {doc_date_html}
+                        </div>
+
+                    </div>
+
+
+                    <!-- الجهة -->
+
+                    <div class="document-field">
+
+                        <div class="document-field-label">
+                            الجهة / الطرف
+                        </div>
+
+                        <div class="document-field-value">
+                            {party_html}
+                        </div>
+
+                    </div>
+
+
+                    <!-- نوع المعاملة -->
+
+                    <div class="document-field">
+
+                        <div class="document-field-label">
+                            نوع المعاملة
+                        </div>
+
+                        <div class="document-field-value">
+                            {doc_type_html}
+                        </div>
+
+                    </div>
+
+
+                    <!-- الموضوع -->
+
+                    <div class="document-subject">
+
+                        <div class="document-field-label">
+                            موضوع المستند
+                        </div>
+
+                        <div class="document-subject-value">
+                            {subject_html}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ملف PDF -->
+
+                {file_html}
+
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+# ============================================================
+# تحميل PDF
+# ============================================================
+
+def render_pdf_download(
+    row,
+    key_prefix
+):
+
+    if not row["file_path"]:
+
+        return
+
+
+    file_path = Path(
+        row["file_path"]
+    )
+
+
+    if not file_path.exists():
+
+        st.warning(
+            "⚠️ الملف المرفق غير موجود في الأرشيف."
+        )
+
+        return
+
+
+    try:
+
+        with open(
+            file_path,
+            "rb"
+        ) as pdf_file:
+
+            pdf_data = pdf_file.read()
+
+
+        st.download_button(
+            "📥 تحميل PDF",
+            data=pdf_data,
+            file_name=file_path.name,
+            mime="application/pdf",
+            key=f"{key_prefix}_pdf_{row['id']}",
+            use_container_width=True
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"❌ تعذر قراءة ملف PDF: {e}"
+        )
+
+
+# ============================================================
 # رأس البرنامج الداخلي
 # ============================================================
 
-if LOGO_PATH.exists():
-
-    logo_base64 = get_image_base64(LOGO_PATH)
-
-    if logo_base64:
-
-        st.markdown(
-            f"""
-            <div class="internal-logo-container">
-                <img
-                    src="data:image/png;base64,{logo_base64}"
-                    alt="شعار الأكاديمية"
-                >
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-else:
-
-    st.warning(
-        "⚠️ لم يتم العثور على ملف logo.png"
-    )
-
+show_logo(145)
 
 st.markdown(
     """
@@ -869,6 +1320,10 @@ st.markdown(
 
 if st.session_state.page == "الرئيسية":
 
+    # --------------------------------------------------------
+    # الوارد
+    # --------------------------------------------------------
+
     st.markdown(
         """
         <div class="section-title">
@@ -889,6 +1344,7 @@ if st.session_state.page == "الرئيسية":
 
             go_to("إضافة وارد")
 
+
     with col2:
 
         if st.button(
@@ -900,6 +1356,10 @@ if st.session_state.page == "الرئيسية":
 
             go_to("السجلات")
 
+
+    # --------------------------------------------------------
+    # الصادر
+    # --------------------------------------------------------
 
     st.markdown(
         """
@@ -921,6 +1381,7 @@ if st.session_state.page == "الرئيسية":
 
             go_to("إضافة صادر")
 
+
     with col2:
 
         if st.button(
@@ -932,6 +1393,10 @@ if st.session_state.page == "الرئيسية":
 
             go_to("السجلات")
 
+
+    # --------------------------------------------------------
+    # البحث
+    # --------------------------------------------------------
 
     st.markdown(
         """
@@ -947,6 +1412,7 @@ if st.session_state.page == "الرئيسية":
         value="",
         placeholder="اكتب كلمة البحث هنا..."
     )
+
 
     if st.button(
         "🔎 تنفيذ البحث",
@@ -974,7 +1440,12 @@ elif st.session_state.page in [
         else "صادر"
     )
 
-    title_icon = "📥" if doc_type == "وارد" else "📤"
+    title_icon = (
+        "📥"
+        if doc_type == "وارد"
+        else "📤"
+    )
+
 
     st.markdown(
         f"""
@@ -985,15 +1456,14 @@ elif st.session_state.page in [
         unsafe_allow_html=True
     )
 
+
     with st.form(
         key=f"add_form_{doc_type}"
     ):
 
-        # ====================================================
-        # الرقم التلقائي
-        # ====================================================
-
-        doc_number = get_next_document_number(doc_type)
+        doc_number = get_next_document_number(
+            doc_type
+        )
 
         st.text_input(
             "رقم المستند",
@@ -1001,16 +1471,19 @@ elif st.session_state.page in [
             disabled=True
         )
 
+
         doc_date = st.date_input(
             "تاريخ المستند *",
             value=date.today(),
             format="DD/MM/YYYY"
         )
 
+
         party = st.text_input(
             "الجهة / الطرف *",
             placeholder="أدخل اسم الجهة"
         )
+
 
         subject = st.text_area(
             "موضوع المستند *",
@@ -1018,11 +1491,13 @@ elif st.session_state.page in [
             height=100
         )
 
+
         uploaded_file = st.file_uploader(
             "إرفاق ملف PDF",
             type=["pdf"],
             help="يمكنك اختيار ملف PDF لأرشفته مع المستند."
         )
+
 
         col1, col2 = st.columns(2)
 
@@ -1032,6 +1507,7 @@ elif st.session_state.page in [
                 "💾 حفظ المستند",
                 type="primary"
             )
+
 
         with col2:
 
@@ -1049,17 +1525,20 @@ elif st.session_state.page in [
 
         errors = []
 
+
         if not doc_number.strip():
 
             errors.append(
                 "رقم المستند مطلوب."
             )
 
+
         if not party.strip():
 
             errors.append(
                 "الجهة / الطرف مطلوب."
             )
+
 
         if not subject.strip():
 
@@ -1076,6 +1555,7 @@ elif st.session_state.page in [
                     f"❌ {error}"
                 )
 
+
         else:
 
             try:
@@ -1085,7 +1565,9 @@ elif st.session_state.page in [
                     doc_type
                 )
 
+
                 conn = get_connection()
+
 
                 conn.execute(
                     """
@@ -1102,24 +1584,30 @@ elif st.session_state.page in [
                     (
                         doc_type,
                         doc_number.strip(),
-                        doc_date.strftime("%d/%m/%Y"),
+                        doc_date.strftime(
+                            "%d/%m/%Y"
+                        ),
                         party.strip(),
                         subject.strip(),
                         file_path
                     )
                 )
 
+
                 conn.commit()
 
                 conn.close()
+
 
                 st.success(
                     f"✅ تم حفظ المستند {doc_type} بنجاح."
                 )
 
+
                 st.session_state.page = "الرئيسية"
 
                 st.rerun()
+
 
             except Exception as e:
 
@@ -1143,10 +1631,12 @@ elif st.session_state.page == "السجلات":
         unsafe_allow_html=True
     )
 
+
     default_filter = st.session_state.get(
         "view_filter",
         "الكل"
     )
+
 
     filter_options = [
         "الكل",
@@ -1154,9 +1644,11 @@ elif st.session_state.page == "السجلات":
         "صادر"
     ]
 
+
     if default_filter not in filter_options:
 
         default_filter = "الكل"
+
 
     selected_filter = st.selectbox(
         "نوع السجل",
@@ -1166,9 +1658,15 @@ elif st.session_state.page == "السجلات":
         )
     )
 
+
+    # حفظ الاختيار الحالي
+    st.session_state.view_filter = selected_filter
+
+
     rows = get_documents(
         doc_type=selected_filter
     )
+
 
     st.write(
         f"📊 عدد السجلات: **{len(rows)}**"
@@ -1181,6 +1679,7 @@ elif st.session_state.page == "السجلات":
             "لا توجد سجلات متاحة."
         )
 
+
     else:
 
         for row in rows:
@@ -1191,91 +1690,57 @@ elif st.session_state.page == "السجلات":
                 else "📤"
             )
 
+
+            # ------------------------------------------------
+            # عنوان مختصر للـ Expander
+            # لا يتم وضع الموضوع هنا
+            # ------------------------------------------------
+
             expander_title = (
                 f"{icon} "
-                f"{row['doc_type']} - "
-                f"{row['doc_number']} - "
-                f"{row['subject']}"
+                f"{row['doc_type']} "
+                f"— رقم {row['doc_number']} "
+                f"— {row['doc_date']}"
             )
 
+
             with st.expander(
-                expander_title
+                expander_title,
+                expanded=False
             ):
 
-                st.markdown(
-                    f"""
-                    <div class="info-card">
+                # ============================================
+                # بطاقة البيانات الجديدة
+                # ============================================
 
-                        <div class="record-title">
-                            {icon} بيانات المستند
-                        </div>
-
-                        <div class="record-line">
-                            <b>النوع:</b> {row["doc_type"]}
-                        </div>
-
-                        <div class="record-line">
-                            <b>رقم المستند:</b> <span dir="ltr">{row["doc_number"]}</span>
-                        </div>
-
-                        <div class="record-line">
-                            <b>التاريخ:</b> <span dir="ltr">{row["doc_date"]}</span>
-                        </div>
-
-                        <div class="record-line">
-                            <b>الجهة:</b> {row["party"]}
-                        </div>
-
-                        <div class="record-line">
-                            <b>الموضوع:</b> {row["subject"]}
-                        </div>
-
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+                render_document_card(
+                    row
                 )
 
 
+                # ============================================
+                # تحميل PDF
+                # ============================================
+
                 if row["file_path"]:
 
-                    file_path = Path(
-                        row["file_path"]
+                    render_pdf_download(
+                        row,
+                        "records"
                     )
 
-                    if file_path.exists():
 
-                        with open(
-                            file_path,
-                            "rb"
-                        ) as pdf_file:
-
-                            st.download_button(
-                                "📥 تحميل ملف PDF",
-                                data=pdf_file.read(),
-                                file_name=file_path.name,
-                                mime="application/pdf",
-                                key=f"download_{row['id']}"
-                            )
-
-                    else:
-
-                        st.warning(
-                            "⚠️ الملف المرفق غير موجود في الأرشيف."
-                        )
-
-                else:
-
-                    st.info(
-                        "📄 لا يوجد ملف PDF مرفق."
-                    )
-
+                # ============================================
+                # أزرار التعديل والحذف
+                # ============================================
 
                 col1, col2 = st.columns(2)
+
 
                 with col1:
 
                     if st.button(
-                        "✏️ تعديل",
+                        "✏️ تعديل المستند",
                         key=f"edit_{row['id']}"
                     ):
 
@@ -1287,13 +1752,16 @@ elif st.session_state.page == "السجلات":
                 with col2:
 
                     if st.button(
-                        "🗑️ حذف",
+                        "🗑️ حذف المستند",
                         key=f"delete_{row['id']}"
                     ):
 
                         st.session_state.delete_id = row["id"]
 
                         go_to("تأكيد الحذف")
+
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
 
     if st.button(
@@ -1319,13 +1787,16 @@ elif st.session_state.page == "البحث":
         unsafe_allow_html=True
     )
 
+
     search_text = st.text_input(
         "كلمة البحث",
         value=st.session_state.search_query,
         placeholder="رقم المستند / الجهة / الموضوع / التاريخ"
     )
 
+
     col1, col2 = st.columns(2)
+
 
     with col1:
 
@@ -1356,14 +1827,16 @@ elif st.session_state.page == "البحث":
             search_text=st.session_state.search_query
         )
 
+
         st.markdown(
-            f"""
+            """
             <div class="section-title">
                 📊 نتائج البحث
             </div>
             """,
             unsafe_allow_html=True
         )
+
 
         st.write(
             f"عدد النتائج: **{len(rows)}**"
@@ -1376,6 +1849,7 @@ elif st.session_state.page == "البحث":
                 "لم يتم العثور على نتائج مطابقة."
             )
 
+
         else:
 
             for row in rows:
@@ -1386,70 +1860,58 @@ elif st.session_state.page == "البحث":
                     else "📤"
                 )
 
+
                 title = (
                     f"{icon} "
-                    f"{row['doc_type']} - "
-                    f"{row['doc_number']} - "
-                    f"{row['subject']}"
+                    f"{row['doc_type']} "
+                    f"— رقم {row['doc_number']} "
+                    f"— {row['doc_date']}"
                 )
 
-                with st.expander(title):
 
-                    st.markdown(
-                        f"""
-                        <div class="info-card">
+                with st.expander(
+                    title,
+                    expanded=False
+                ):
 
-                            <div class="record-line">
-                                <b>النوع:</b>
-                                {row["doc_type"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>رقم المستند:</b>
-                                {row["doc_number"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>التاريخ:</b>
-                                {row["doc_date"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>الجهة:</b>
-                                {row["party"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>الموضوع:</b>
-                                {row["subject"]}
-                            </div>
-
-                        </div>
-                        """,
-                        unsafe_allow_html=True
+                    render_document_card(
+                        row
                     )
 
 
                     if row["file_path"]:
 
-                        file_path = Path(
-                            row["file_path"]
+                        render_pdf_download(
+                            row,
+                            "search"
                         )
 
-                        if file_path.exists():
 
-                            with open(
-                                file_path,
-                                "rb"
-                            ) as pdf_file:
+                    col1, col2 = st.columns(2)
 
-                                st.download_button(
-                                    "📥 تحميل PDF",
-                                    data=pdf_file.read(),
-                                    file_name=file_path.name,
-                                    mime="application/pdf",
-                                    key=f"search_download_{row['id']}"
-                                )
+
+                    with col1:
+
+                        if st.button(
+                            "✏️ تعديل المستند",
+                            key=f"search_edit_{row['id']}"
+                        ):
+
+                            st.session_state.edit_id = row["id"]
+
+                            go_to("تعديل")
+
+
+                    with col2:
+
+                        if st.button(
+                            "🗑️ حذف المستند",
+                            key=f"search_delete_{row['id']}"
+                        ):
+
+                            st.session_state.delete_id = row["id"]
+
+                            go_to("تأكيد الحذف")
 
 
 # ============================================================
@@ -1462,11 +1924,13 @@ elif st.session_state.page == "تعديل":
         "edit_id"
     )
 
+
     if not document_id:
 
         st.error(
             "❌ لم يتم تحديد المستند."
         )
+
 
         if st.button(
             "🏠 الرئيسية"
@@ -1474,11 +1938,13 @@ elif st.session_state.page == "تعديل":
 
             go_to("الرئيسية")
 
+
     else:
 
         row = get_document(
             document_id
         )
+
 
         if not row:
 
@@ -1486,18 +1952,20 @@ elif st.session_state.page == "تعديل":
                 "❌ المستند غير موجود."
             )
 
+
             if st.button(
                 "🏠 الرئيسية"
             ):
 
                 go_to("الرئيسية")
 
+
         else:
 
             st.markdown(
                 f"""
                 <div class="section-title">
-                    ✏️ تعديل مستند {row["doc_type"]}
+                    ✏️ تعديل مستند {escape(str(row["doc_type"]))}
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -1512,6 +1980,7 @@ elif st.session_state.page == "تعديل":
                     "رقم المستند *",
                     value=row["doc_number"]
                 )
+
 
                 try:
 
@@ -1531,10 +2000,12 @@ elif st.session_state.page == "تعديل":
                     format="DD/MM/YYYY"
                 )
 
+
                 party = st.text_input(
                     "الجهة / الطرف *",
                     value=row["party"]
                 )
+
 
                 subject = st.text_area(
                     "موضوع المستند *",
@@ -1542,15 +2013,18 @@ elif st.session_state.page == "تعديل":
                     height=100
                 )
 
+
                 st.write(
                     "📎 الملف الحالي:"
                 )
+
 
                 if row["file_path"]:
 
                     old_file = Path(
                         row["file_path"]
                     )
+
 
                     if old_file.exists():
 
@@ -1563,6 +2037,7 @@ elif st.session_state.page == "تعديل":
                         st.warning(
                             "الملف الحالي غير موجود."
                         )
+
 
                 else:
 
@@ -1580,12 +2055,14 @@ elif st.session_state.page == "تعديل":
 
                 col1, col2 = st.columns(2)
 
+
                 with col1:
 
                     save_edit = st.form_submit_button(
                         "💾 حفظ التعديلات",
                         type="primary"
                     )
+
 
                 with col2:
 
@@ -1603,17 +2080,20 @@ elif st.session_state.page == "تعديل":
 
                 errors = []
 
+
                 if not doc_number.strip():
 
                     errors.append(
                         "رقم المستند مطلوب."
                     )
 
+
                 if not party.strip():
 
                     errors.append(
                         "الجهة / الطرف مطلوبة."
                     )
+
 
                 if not subject.strip():
 
@@ -1629,6 +2109,7 @@ elif st.session_state.page == "تعديل":
                         st.error(
                             f"❌ {error}"
                         )
+
 
                 else:
 
@@ -1659,7 +2140,10 @@ elif st.session_state.page == "تعديل":
                         )
 
 
-                        if new_file_path and old_file_path:
+                        if (
+                            new_file_path
+                            and old_file_path
+                        ):
 
                             delete_old_file(
                                 old_file_path
@@ -1670,9 +2154,11 @@ elif st.session_state.page == "تعديل":
                             "✅ تم تحديث المستند بنجاح."
                         )
 
+
                         st.session_state.page = "السجلات"
 
                         st.rerun()
+
 
                     except Exception as e:
 
@@ -1691,9 +2177,12 @@ elif st.session_state.page == "تأكيد الحذف":
         "delete_id"
     )
 
-    row = get_document(
-        document_id
-    ) if document_id else None
+
+    row = (
+        get_document(document_id)
+        if document_id
+        else None
+    )
 
 
     st.markdown(
@@ -1712,11 +2201,13 @@ elif st.session_state.page == "تأكيد الحذف":
             "❌ المستند غير موجود."
         )
 
+
         if st.button(
             "🏠 الرئيسية"
         ):
 
             go_to("الرئيسية")
+
 
     else:
 
@@ -1728,6 +2219,8 @@ elif st.session_state.page == "تأكيد الحذف":
 
             **رقم المستند:** {row["doc_number"]}
 
+            **التاريخ:** {row["doc_date"]}
+
             **الجهة:** {row["party"]}
 
             **الموضوع:** {row["subject"]}
@@ -1738,6 +2231,7 @@ elif st.session_state.page == "تأكيد الحذف":
 
 
         col1, col2 = st.columns(2)
+
 
         with col1:
 
@@ -1752,13 +2246,16 @@ elif st.session_state.page == "تأكيد الحذف":
                         document_id
                     )
 
+
                     st.success(
                         "✅ تم حذف المستند بنجاح."
                     )
 
+
                     st.session_state.page = "السجلات"
 
                     st.rerun()
+
 
                 except Exception as e:
 
@@ -1783,9 +2280,13 @@ elif st.session_state.page == "تأكيد الحذف":
 st.markdown(
     """
     <div class="custom-footer">
+
         الأكاديمية المهنية للمعلمين - فرع الجيزة
+
         <br>
+
         ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+
     </div>
     """,
     unsafe_allow_html=True
