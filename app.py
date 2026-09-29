@@ -1,240 +1,194 @@
 
 import streamlit as st
 import sqlite3
-import os
 import shutil
-import html
-import uuid
-from datetime import datetime
 from pathlib import Path
+from datetime import date, datetime
 
-# =========================================================
-# 1. إعدادات الصفحة
-# =========================================================
+# ==========================================
+# إعدادات الصفحة
+# ==========================================
 
 st.set_page_config(
-    page_title="المنظومة الرقمية للوارد والصادر",
-    page_icon="📂",
-    layout="wide",
+    page_title="منظومة الوارد والصادر",
+    page_icon="📁",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# =========================================================
-# 2. مسارات الملفات
-# =========================================================
+# ==========================================
+# المسارات
+# ==========================================
 
 BASE_DIR = Path(__file__).resolve().parent
 
-DB_NAME = BASE_DIR / "archive_system.db"
-ARCHIVE_FOLDER = BASE_DIR / "Archive_Files"
-INCOMING_FOLDER = ARCHIVE_FOLDER / "Incoming"
-OUTGOING_FOLDER = ARCHIVE_FOLDER / "Outgoing"
+DB_PATH = BASE_DIR / "documents.db"
+ARCHIVE_DIR = BASE_DIR / "Archive_Files"
+
+INCOMING_DIR = ARCHIVE_DIR / "Incoming"
+OUTGOING_DIR = ARCHIVE_DIR / "Outgoing"
+
 LOGO_PATH = BASE_DIR / "logo.png"
 
-for folder in (
-    ARCHIVE_FOLDER,
-    INCOMING_FOLDER,
-    OUTGOING_FOLDER
-):
-    folder.mkdir(parents=True, exist_ok=True)
+# إنشاء مجلدات الأرشيف إذا لم تكن موجودة
+INCOMING_DIR.mkdir(parents=True, exist_ok=True)
+OUTGOING_DIR.mkdir(parents=True, exist_ok=True)
 
-# =========================================================
-# 3. التصميم والألوان
-# =========================================================
+# ==========================================
+# تنسيق الصفحة و CSS
+# ==========================================
 
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap');
 
-/* خلفية الصفحة */
+html, body, [class*="css"] {
+    font-family: 'Cairo', sans-serif !important;
+}
+
 .stApp {
-    background-color: #f4f7fb;
     direction: rtl;
+    text-align: right;
 }
 
-/* عرض البرنامج */
 .block-container {
-    max-width: 50vw !important;
-    width: 50vw !important;
-    margin: auto !important;
-    padding-top: 15px !important;
-    padding-bottom: 20px !important;
+    max-width: 850px;
+    width: 95%;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
 }
 
-/* اللوجو */
-.logo-title {
-    text-align: center;
-    margin: 0 auto;
+/* توسيط اللوجو */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 18px;
 }
 
-/* العنوان الرئيسي */
+/* عناوين الأكاديمية */
 .main-title {
     text-align: center;
-    direction: rtl;
-    color: #183153;
-    font-size: 29px;
+    color: #17365d;
+    font-size: 25px;
     font-weight: 800;
-    margin-top: 5px;
+    margin-top: 10px;
     margin-bottom: 8px;
 }
 
-/* عنوان الفرع */
-.branch-title {
+.sub-title {
     text-align: center;
-    direction: rtl;
-    color: #52647a;
-    font-size: 19px;
-    font-weight: bold;
-    margin-bottom: 25px;
+    color: #294d7c;
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 35px;
 }
 
-/* عناوين الأقسام */
+/* العناوين الرئيسية */
 .section-title {
-    background: linear-gradient(135deg, #183153, #315a8a);
+    background: linear-gradient(110deg, #19365d, #2d588d);
     color: white;
-    padding: 13px;
+    padding: 15px 20px;
     border-radius: 12px;
     text-align: center;
-    direction: rtl;
     font-size: 21px;
-    font-weight: bold;
-    margin: 18px 0;
+    font-weight: 700;
+    margin-top: 25px;
+    margin-bottom: 15px;
 }
 
-/* الأزرار العامة */
-.stButton button,
-.stDownloadButton button {
+/* الأزرار */
+.stButton > button {
     width: 100%;
-    min-height: 45px;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 15px;
-    transition: all 0.2s ease;
+    min-height: 48px;
+    border-radius: 11px;
+    border: 1px solid #d0d5dd;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
 }
 
-/* تأثير المرور */
-.stButton button:hover,
-.stDownloadButton button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.12);
-}
-
-/* زر الوارد */
-div[data-testid="stHorizontalBlock"]
-> div:nth-child(1)
-div[data-testid="stButton"]
-button[kind="primary"] {
-    background: linear-gradient(135deg, #1565c0, #42a5f5);
+.stButton > button[kind="primary"] {
+    background: linear-gradient(110deg, #19365d, #2d588d);
     color: white;
     border: none;
 }
 
 /* حقول الإدخال */
-input, textarea {
-    direction: rtl !important;
-    text-align: right !important;
-    border-radius: 8px !important;
+.stTextInput input,
+.stTextArea textarea,
+.stDateInput input,
+.stSelectbox div[data-baseweb="select"] {
+    font-family: 'Cairo', sans-serif;
+    text-align: right;
+    border-radius: 9px;
 }
 
-/* البطاقات */
-.document-card {
-    background: white;
-    border: 1px solid #dce5ef;
-    border-radius: 12px;
-    padding: 15px;
-    margin-top: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+/* الجداول */
+[data-testid="stDataFrame"] {
     direction: rtl;
-    text-align: right;
-    line-height: 2;
-    overflow-wrap: anywhere;
 }
 
 /* الفوتر */
 .footer {
     text-align: center;
-    direction: rtl;
-    color: #64748b;
-    border-top: 1px solid #dce5ef;
-    padding: 15px 5px;
-    margin-top: 30px;
+    color: #294d7c;
+    font-family: 'Cairo', sans-serif;
     font-size: 14px;
-    font-weight: bold;
+    margin-top: 45px;
+    padding: 15px 0;
+    border-top: 1px solid #d8dee8;
 }
 
-/* إخفاء العناصر الافتراضية */
-#MainMenu {
-    visibility: hidden;
-}
-
-footer {
-    visibility: hidden;
-}
-
-/* الهاتف والشاشات الصغيرة */
-@media (max-width: 900px) {
+/* تحسين عرض الموبايل */
+@media (max-width: 600px) {
     .block-container {
-        width: 95% !important;
-        max-width: 95% !important;
-        padding-left: 10px !important;
-        padding-right: 10px !important;
+        width: 95%;
+        padding-top: 10px;
     }
 
     .main-title {
-        font-size: 23px;
+        font-size: 20px;
     }
 
-    .branch-title {
-        font-size: 16px;
+    .sub-title {
+        font-size: 15px;
     }
 
     .section-title {
         font-size: 18px;
     }
 }
-
 </style>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# 4. قاعدة البيانات
-# =========================================================
 
-def get_db_connection():
-    conn = sqlite3.connect(
-        str(DB_NAME),
-        timeout=30
-    )
+# ==========================================
+# الاتصال بقاعدة البيانات
+# ==========================================
+
+def get_connection():
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    conn = get_connection()
 
-    cursor.execute("""
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             doc_type TEXT NOT NULL,
             doc_number TEXT NOT NULL,
             doc_date TEXT NOT NULL,
             party TEXT NOT NULL,
-            subject TEXT DEFAULT '',
-            file_path TEXT DEFAULT '',
-            created_at TEXT
+            subject TEXT NOT NULL,
+            file_path TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
-    """)
-
-    # فهرسة لتحسين البحث
-    cursor.execute("""
-        CREATE INDEX IF NOT EXISTS idx_documents_type
-        ON documents(doc_type)
-    """)
-
-    cursor.execute("""
-        CREATE INDEX IF NOT EXISTS idx_documents_number
-        ON documents(doc_number)
     """)
 
     conn.commit()
@@ -243,36 +197,49 @@ def init_db():
 
 init_db()
 
-# =========================================================
-# 5. الجلسة
-# =========================================================
 
-if "page" not in st.session_state:
-    st.session_state.page = "home"
+# ==========================================
+# أدوات مساعدة
+# ==========================================
 
-if "edit_id" not in st.session_state:
-    st.session_state.edit_id = None
+def get_archive_folder(doc_type):
+    if doc_type == "وارد":
+        return INCOMING_DIR
+    return OUTGOING_DIR
 
-if "delete_id" not in st.session_state:
-    st.session_state.delete_id = None
 
-# =========================================================
-# 6. دوال قاعدة البيانات
-# =========================================================
+def save_uploaded_file(uploaded_file, doc_type):
+    """حفظ ملف PDF داخل مجلد الأرشيف."""
 
-def get_documents(doc_type, search_text=""):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    if uploaded_file is None:
+        return None
 
-    query = """
-        SELECT *
-        FROM documents
-        WHERE doc_type = ?
-    """
+    folder = get_archive_folder(doc_type)
 
-    params = [doc_type]
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
 
-    if search_text.strip():
+    original_name = Path(uploaded_file.name).name
+    safe_name = f"{timestamp}_{original_name}"
+
+    file_path = folder / safe_name
+
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    return str(file_path)
+
+
+def get_documents(doc_type=None, search_text=""):
+    conn = get_connection()
+
+    query = "SELECT * FROM documents WHERE 1=1"
+    params = []
+
+    if doc_type:
+        query += " AND doc_type = ?"
+        params.append(doc_type)
+
+    if search_text:
         query += """
             AND (
                 doc_number LIKE ?
@@ -282,688 +249,590 @@ def get_documents(doc_type, search_text=""):
             )
         """
 
-        value = f"%{search_text.strip()}%"
+        keyword = f"%{search_text}%"
 
         params.extend([
-            value,
-            value,
-            value,
-            value
+            keyword,
+            keyword,
+            keyword,
+            keyword
         ])
 
     query += " ORDER BY id DESC"
 
-    cursor.execute(query, params)
-    rows = cursor.fetchall()
-
+    rows = conn.execute(query, params).fetchall()
     conn.close()
+
     return rows
 
 
-def get_document(document_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+def delete_document(doc_id):
+    """حذف المستند من قاعدة البيانات وملفه من الأرشيف."""
 
-    cursor.execute(
-        "SELECT * FROM documents WHERE id = ?",
-        (document_id,)
-    )
+    conn = get_connection()
 
-    row = cursor.fetchone()
-    conn.close()
+    row = conn.execute(
+        "SELECT file_path FROM documents WHERE id = ?",
+        (doc_id,)
+    ).fetchone()
 
-    return row
+    if row:
+        file_path = row["file_path"]
 
-
-def insert_document(
-    doc_type,
-    doc_number,
-    doc_date,
-    party,
-    subject,
-    uploaded_file
-):
-    file_path = ""
-
-    if uploaded_file is not None:
-        folder = (
-            INCOMING_FOLDER
-            if doc_type == "وارد"
-            else OUTGOING_FOLDER
-        )
-
-        filename = (
-            f"{uuid.uuid4().hex}_"
-            f"{Path(uploaded_file.name).name}"
-        )
-
-        path = folder / filename
-
-        with open(path, "wb") as file:
-            file.write(uploaded_file.getbuffer())
-
-        file_path = str(path)
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO documents (
-            doc_type,
-            doc_number,
-            doc_date,
-            party,
-            subject,
-            file_path,
-            created_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (
-        doc_type,
-        doc_number.strip(),
-        doc_date.strftime("%Y-%m-%d"),
-        party.strip(),
-        subject.strip(),
-        file_path,
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    ))
-
-    conn.commit()
-    conn.close()
-
-
-def update_document(
-    document_id,
-    doc_number,
-    doc_date,
-    party,
-    subject,
-    uploaded_file
-):
-    document = get_document(document_id)
-
-    if not document:
-        return False
-
-    old_path = document["file_path"] or ""
-    new_path = old_path
-
-    if uploaded_file is not None:
-        folder = (
-            INCOMING_FOLDER
-            if document["doc_type"] == "وارد"
-            else OUTGOING_FOLDER
-        )
-
-        filename = (
-            f"{uuid.uuid4().hex}_"
-            f"{Path(uploaded_file.name).name}"
-        )
-
-        path = folder / filename
-
-        with open(path, "wb") as file:
-            file.write(uploaded_file.getbuffer())
-
-        new_path = str(path)
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE documents
-        SET
-            doc_number = ?,
-            doc_date = ?,
-            party = ?,
-            subject = ?,
-            file_path = ?
-        WHERE id = ?
-    """, (
-        doc_number.strip(),
-        doc_date.strftime("%Y-%m-%d"),
-        party.strip(),
-        subject.strip(),
-        new_path,
-        document_id
-    ))
-
-    conn.commit()
-    conn.close()
-
-    # حذف الملف القديم بعد نجاح التحديث
-    if uploaded_file is not None and old_path:
-        try:
-            old_file = Path(old_path)
-            if old_file.exists():
-                old_file.unlink()
-        except OSError:
-            pass
-
-    return True
-
-
-def delete_document(document_id):
-    document = get_document(document_id)
-
-    if not document:
-        return False
-
-    file_path = document["file_path"] or ""
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "DELETE FROM documents WHERE id = ?",
-        (document_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    if file_path:
-        try:
+        if file_path:
             path = Path(file_path)
-            if path.exists():
-                path.unlink()
-        except OSError:
-            pass
 
-    return True
+            # حذف الملف فقط إذا كان داخل مجلد الأرشيف
+            try:
+                if path.exists() and ARCHIVE_DIR.resolve() in path.resolve().parents:
+                    path.unlink()
+            except OSError:
+                pass
 
+        conn.execute(
+            "DELETE FROM documents WHERE id = ?",
+            (doc_id,)
+        )
 
-def get_counts():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+        conn.commit()
 
-    cursor.execute("""
-        SELECT doc_type, COUNT(*) AS total
-        FROM documents
-        GROUP BY doc_type
-    """)
-
-    rows = cursor.fetchall()
     conn.close()
 
-    counts = {
-        "وارد": 0,
-        "صادر": 0
-    }
 
-    for row in rows:
-        counts[row["doc_type"]] = row["total"]
-
-    return counts
-
-# =========================================================
-# 7. الترويسة واللوجو
-# =========================================================
-
-# توسيط اللوجو باستخدام الأعمدة
-# =========================================================
-# اللوجو - تكبير وتوسيط كامل
-# =========================================================
-
-st.markdown("""
-<style>
-/* حاوية اللوجو */
-.logo-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    margin: 0 auto 15px auto;
-}
-
-/* تكبير صورة اللوجو */
-.logo-wrapper img {
-    width: 260px !important;
-    max-width: 90% !important;
-    height: auto !important;
-    object-fit: contain;
-    display: block;
-    margin: 0 auto;
-}
-
-/* تصغير اللوجو تلقائياً على الهاتف */
-@media (max-width: 600px) {
-    .logo-wrapper img {
-        width: 190px !important;
-    }
-}
-</style>
-""", unsafe_allow_html=True)
+# ==========================================
+# عرض اللوجو والعناوين
+# ==========================================
 
 if LOGO_PATH.exists():
-    st.markdown(
-        '<div class="logo-wrapper">',
-        unsafe_allow_html=True
-    )
 
-    st.image(
-        str(LOGO_PATH),
-        width=260
-    )
+    # ثلاثة أعمدة لتوسيط اللوجو فعليًا
+    left_col, center_col, right_col = st.columns([1, 2, 1])
 
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+    with center_col:
+        st.image(
+            str(LOGO_PATH),
+            width=250
+        )
+
 else:
-    st.markdown(
-        "<h1 style='text-align:center'>📂</h1>",
-        unsafe_allow_html=True
+    st.warning(
+        "لم يتم العثور على ملف اللوجو. "
+        "تأكد من وجود logo.png بجوار app.py"
     )
+
 st.markdown("""
 <div class="main-title">
-    الأكاديمية المهنية للمعلمين – فرع الجيزة
+الأكاديمية المهنية للمعلمين – فرع الجيزة
 </div>
 
-<div class="branch-title">
-    المنظومة الرقمية للوارد والصادر
+<div class="sub-title">
+المنظومة الرقمية للوارد والصادر
 </div>
 """, unsafe_allow_html=True)
 
-# =========================================================
-# 8. الصفحة الرئيسية
-# =========================================================
 
-if st.session_state.page == "home":
+# ==========================================
+# القائمة الرئيسية
+# ==========================================
 
-    st.markdown("""
-    <div class="section-title">
-        اختر نوع المعاملة
-    </div>
-    """, unsafe_allow_html=True)
+if "page" not in st.session_state:
+    st.session_state.page = "الرئيسية"
 
-    col_in, col_out = st.columns(2)
 
-    with col_in:
-        if st.button(
-            "📥 الوارد",
-            type="primary",
-            use_container_width=True,
-            key="home_incoming"
-        ):
-            st.session_state.page = "incoming"
-            st.session_state.edit_id = None
-            st.session_state.delete_id = None
+def go_to(page):
+    st.session_state.page = page
+
+
+if st.session_state.page == "الرئيسية":
+
+    st.markdown(
+        '<div class="section-title">📥 سجل الوارد</div>',
+        unsafe_allow_html=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("➕ إضافة وارد جديد", key="add_incoming"):
+            go_to("إضافة وارد")
             st.rerun()
 
-    with col_out:
-        if st.button(
-            "📤 الصادر",
-            type="primary",
-            use_container_width=True,
-            key="home_outgoing"
-        ):
-            st.session_state.page = "outgoing"
-            st.session_state.edit_id = None
-            st.session_state.delete_id = None
+    with col2:
+        if st.button("🏠 الرئيسية", key="home_incoming"):
+            go_to("الرئيسية")
             st.rerun()
 
-    counts = get_counts()
+    st.markdown(
+        '<div class="section-title">📤 سجل الصادر</div>',
+        unsafe_allow_html=True
+    )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
 
-    c1, c2 = st.columns(2)
+    with col1:
+        if st.button("➕ إضافة صادر جديد", key="add_outgoing"):
+            go_to("إضافة صادر")
+            st.rerun()
 
-    with c1:
-        st.info(f"📥 إجمالي الوارد: {counts['وارد']}")
+    with col2:
+        if st.button("📋 عرض السجلات", key="view_all"):
+            go_to("عرض السجلات")
+            st.rerun()
 
-    with c2:
-        st.success(f"📤 إجمالي الصادر: {counts['صادر']}")
+    st.markdown(
+        '<div class="section-title">🔎 البحث في الأرشيف</div>',
+        unsafe_allow_html=True
+    )
 
-# =========================================================
-# 9. شاشة الوارد والصادر
-# =========================================================
+    search_text = st.text_input(
+        "ابحث برقم الخطاب أو الجهة أو الموضوع",
+        key="main_search"
+    )
 
-elif st.session_state.page in ("incoming", "outgoing"):
+    if st.button("بحث", key="main_search_button", type="primary"):
+        st.session_state.search_query = search_text
+        go_to("نتائج البحث")
+        st.rerun()
 
-    current_type = (
+
+# ==========================================
+# إضافة مستند وارد أو صادر
+# ==========================================
+
+elif st.session_state.page in ["إضافة وارد", "إضافة صادر"]:
+
+    doc_type = (
         "وارد"
-        if st.session_state.page == "incoming"
+        if st.session_state.page == "إضافة وارد"
         else "صادر"
     )
 
-    icon = "📥" if current_type == "وارد" else "📤"
-
     st.markdown(
-        f'<div class="section-title">{icon} سجل {current_type}</div>',
+        f'<div class="section-title">➕ تسجيل {doc_type} جديد</div>',
         unsafe_allow_html=True
     )
 
-    top1, top2 = st.columns(2)
-
-    with top1:
-        if st.button("🏠 الرئيسية", use_container_width=True):
-            st.session_state.page = "home"
-            st.session_state.edit_id = None
-            st.session_state.delete_id = None
-            st.rerun()
-
-    with top2:
-        if st.button(
-            f"➕ إضافة {current_type} جديد",
-            use_container_width=True
-        ):
-            st.session_state.edit_id = None
-            st.rerun()
-
-    # =====================================================
-    # نموذج التسجيل والتعديل
-    # =====================================================
-
-    edit_document = None
-
-    if st.session_state.edit_id is not None:
-        edit_document = get_document(
-            st.session_state.edit_id
-        )
-
-        if (
-            edit_document is None
-            or edit_document["doc_type"] != current_type
-        ):
-            st.session_state.edit_id = None
-            edit_document = None
-
-    is_edit = edit_document is not None
-
-    st.markdown(
-        f'<div class="section-title">'
-        f'{"✏️ تعديل" if is_edit else "➕ تسجيل"} {current_type}'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-
-    default_number = (
-        edit_document["doc_number"] if is_edit else ""
-    )
-
-    default_party = (
-        edit_document["party"] if is_edit else ""
-    )
-
-    default_subject = (
-        edit_document["subject"] or "" if is_edit else ""
-    )
-
-    default_date = datetime.now().date()
-
-    if is_edit:
-        try:
-            default_date = datetime.strptime(
-                edit_document["doc_date"],
-                "%Y-%m-%d"
-            ).date()
-        except (ValueError, TypeError):
-            pass
-
-    with st.form(
-        key=f"document_form_{current_type}_{st.session_state.edit_id}",
-        clear_on_submit=False
-    ):
+    with st.form("add_document_form", clear_on_submit=True):
 
         col1, col2 = st.columns(2)
 
         with col1:
             doc_number = st.text_input(
                 "رقم الخطاب *",
-                value=default_number,
                 placeholder="أدخل رقم الخطاب"
             )
 
         with col2:
             doc_date = st.date_input(
                 "تاريخ الخطاب *",
-                value=default_date,
-                format="DD/MM/YYYY"
+                value=date.today(),
+                format="YYYY/MM/DD"
             )
 
-        col3, col4 = st.columns(2)
+        col1, col2 = st.columns(2)
 
-        with col3:
+        with col1:
             party = st.text_input(
                 "الجهة *",
-                value=default_party,
                 placeholder="اسم الجهة"
             )
 
-        with col4:
+        with col2:
             subject = st.text_input(
-                "موضوع الخطاب",
-                value=default_subject,
+                "موضوع الخطاب *",
                 placeholder="موضوع الخطاب"
             )
 
         uploaded_file = st.file_uploader(
-            "📎 إرفاق ملف PDF",
+            "إرفاق ملف الخطاب PDF (اختياري)",
             type=["pdf"],
-            help="اختر ملف PDF الخاص بالخطاب"
+            help="يمكن إرفاق نسخة PDF من الخطاب"
         )
 
-        if is_edit and edit_document["file_path"]:
-            st.caption(
-                "يوجد ملف محفوظ. ارفع ملفًا جديدًا "
-                "فقط إذا كنت تريد استبداله."
-            )
-
         submitted = st.form_submit_button(
-            "💾 حفظ البيانات",
+            "💾 حفظ المستند",
             type="primary",
             use_container_width=True
         )
 
-    cancel_col, empty_col = st.columns([2, 8])
+        if submitted:
 
-    with cancel_col:
-        if st.button(
-            "❌ إلغاء",
-            use_container_width=True
-        ):
-            st.session_state.edit_id = None
-            st.rerun()
+            if not doc_number.strip():
+                st.error("من فضلك أدخل رقم الخطاب.")
 
-    if submitted:
-        if not doc_number.strip():
-            st.error("يرجى إدخال رقم الخطاب.")
+            elif not party.strip():
+                st.error("من فضلك أدخل اسم الجهة.")
 
-        elif not party.strip():
-            st.error("يرجى إدخال اسم الجهة.")
+            elif not subject.strip():
+                st.error("من فضلك أدخل موضوع الخطاب.")
 
-        else:
-            try:
-                if is_edit:
-                    success = update_document(
-                        st.session_state.edit_id,
-                        doc_number,
-                        doc_date,
-                        party,
-                        subject,
-                        uploaded_file
+            else:
+                file_path = None
+
+                try:
+                    file_path = save_uploaded_file(
+                        uploaded_file,
+                        doc_type
                     )
 
-                    if success:
-                        st.session_state.edit_id = None
-                        st.success("تم تعديل البيانات بنجاح.")
-                        st.rerun()
+                    conn = get_connection()
 
-                    else:
-                        st.error("السجل غير موجود.")
+                    conn.execute("""
+                        INSERT INTO documents
+                        (
+                            doc_type,
+                            doc_number,
+                            doc_date,
+                            party,
+                            subject,
+                            file_path
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        doc_type,
+                        doc_number.strip(),
+                        doc_date.strftime("%Y-%m-%d"),
+                        party.strip(),
+                        subject.strip(),
+                        file_path
+                    ))
 
-                else:
-                    insert_document(
-                        current_type,
-                        doc_number,
-                        doc_date,
-                        party,
-                        subject,
-                        uploaded_file
+                    conn.commit()
+                    conn.close()
+
+                    st.success(
+                        f"تم حفظ الخطاب {doc_type} بنجاح."
                     )
 
-                    st.success("تم تسجيل الخطاب بنجاح.")
+                    st.session_state.page = "الرئيسية"
                     st.rerun()
 
-            except Exception as e:
-                st.error(f"حدث خطأ أثناء الحفظ: {e}")
+                except Exception as e:
+                    st.error(f"حدث خطأ أثناء الحفظ: {e}")
 
-    # =====================================================
-    # البحث
-    # =====================================================
+                    # تنظيف الملف إذا فشلت عملية الحفظ
+                    if file_path:
+                        try:
+                            Path(file_path).unlink(missing_ok=True)
+                        except OSError:
+                            pass
 
-    st.markdown("""
-    <div class="section-title">
-        🔎 البحث في السجلات
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button("⬅️ العودة للرئيسية"):
+        go_to("الرئيسية")
+        st.rerun()
 
-    search_text = st.text_input(
-        "البحث برقم الخطاب أو التاريخ أو الجهة أو الموضوع",
-        placeholder="اكتب كلمة البحث هنا...",
-        key=f"search_{current_type}"
-    )
 
-    documents = get_documents(
-        current_type,
-        search_text
-    )
+# ==========================================
+# عرض السجلات
+# ==========================================
+
+elif st.session_state.page == "عرض السجلات":
 
     st.markdown(
-        f"**عدد السجلات: {len(documents)}**"
+        '<div class="section-title">📋 جميع السجلات</div>',
+        unsafe_allow_html=True
     )
 
-    # =====================================================
-    # عرض السجلات
-    # =====================================================
+    filter_type = st.selectbox(
+        "نوع المستند",
+        ["الكل", "وارد", "صادر"]
+    )
 
-    if not documents:
-        st.info("لا توجد سجلات مطابقة للبحث.")
+    selected_type = (
+        None if filter_type == "الكل"
+        else filter_type
+    )
 
-    for document in documents:
+    rows = get_documents(selected_type)
 
-        doc_id = document["id"]
+    if rows:
 
-        safe_number = html.escape(
-            str(document["doc_number"])
-        )
+        for row in rows:
 
-        safe_date = html.escape(
-            str(document["doc_date"])
-        )
+            with st.expander(
+                f"{row['doc_type']} | رقم {row['doc_number']} | {row['party']}"
+            ):
 
-        safe_party = html.escape(
-            str(document["party"])
-        )
+                st.write(f"**رقم الخطاب:** {row['doc_number']}")
+                st.write(f"**التاريخ:** {row['doc_date']}")
+                st.write(f"**الجهة:** {row['party']}")
+                st.write(f"**الموضوع:** {row['subject']}")
 
-        safe_subject = html.escape(
-            str(document["subject"] or "—")
-        )
+                if row["file_path"]:
+                    file_path = Path(row["file_path"])
 
-        st.markdown(
-            f"""
-            <div class="document-card">
-                <b>📌 رقم الخطاب:</b> {safe_number}
-                <br>
-                <b>📅 التاريخ:</b> {safe_date}
-                <br>
-                <b>🏢 الجهة:</b> {safe_party}
-                <br>
-                <b>📝 الموضوع:</b> {safe_subject}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+                    if file_path.exists():
+                        with open(file_path, "rb") as f:
+                            st.download_button(
+                                label="📥 تنزيل ملف الخطاب",
+                                data=f.read(),
+                                file_name=file_path.name,
+                                mime="application/pdf",
+                                key=f"download_{row['id']}"
+                            )
+                    else:
+                        st.warning("ملف الخطاب غير موجود في الأرشيف.")
 
-        b1, b2, b3 = st.columns(3)
+                col1, col2 = st.columns(2)
 
-        with b1:
-            file_path = document["file_path"] or ""
+                with col1:
+                    if st.button(
+                        "✏️ تعديل",
+                        key=f"edit_{row['id']}"
+                    ):
+                        st.session_state.edit_id = row["id"]
+                        go_to("تعديل مستند")
+                        st.rerun()
 
-            if file_path and Path(file_path).is_file():
-                with open(file_path, "rb") as pdf_file:
-                    st.download_button(
-                        "📄 تنزيل PDF",
-                        data=pdf_file.read(),
-                        file_name=Path(file_path).name,
-                        mime="application/pdf",
-                        key=f"download_{doc_id}",
-                        use_container_width=True
-                    )
-            else:
-                st.button(
-                    "📄 لا يوجد PDF",
-                    key=f"no_pdf_{doc_id}",
-                    disabled=True,
-                    use_container_width=True
+                with col2:
+                    if st.button(
+                        "🗑️ حذف",
+                        key=f"delete_{row['id']}"
+                    ):
+                        st.session_state.delete_id = row["id"]
+                        go_to("تأكيد الحذف")
+                        st.rerun()
+
+    else:
+        st.info("لا توجد سجلات مسجلة حتى الآن.")
+
+    if st.button("⬅️ العودة للرئيسية"):
+        go_to("الرئيسية")
+        st.rerun()
+
+
+# ==========================================
+# نتائج البحث
+# ==========================================
+
+elif st.session_state.page == "نتائج البحث":
+
+    st.markdown(
+        '<div class="section-title">🔎 نتائج البحث</div>',
+        unsafe_allow_html=True
+    )
+
+    search_query = st.session_state.get(
+        "search_query", ""
+    )
+
+    rows = get_documents(search_text=search_query)
+
+    if rows:
+
+        st.success(f"عدد النتائج: {len(rows)}")
+
+        for row in rows:
+
+            with st.expander(
+                f"{row['doc_type']} | {row['doc_number']} | {row['party']}"
+            ):
+
+                st.write(f"**التاريخ:** {row['doc_date']}")
+                st.write(f"**الجهة:** {row['party']}")
+                st.write(f"**الموضوع:** {row['subject']}")
+
+                if row["file_path"]:
+                    file_path = Path(row["file_path"])
+
+                    if file_path.exists():
+                        with open(file_path, "rb") as f:
+                            st.download_button(
+                                "📥 تنزيل الخطاب",
+                                data=f.read(),
+                                file_name=file_path.name,
+                                mime="application/pdf",
+                                key=f"search_download_{row['id']}"
+                            )
+
+    else:
+        st.warning("لا توجد نتائج مطابقة للبحث.")
+
+    if st.button("⬅️ العودة للرئيسية"):
+        go_to("الرئيسية")
+        st.rerun()
+
+
+# ==========================================
+# تعديل مستند
+# ==========================================
+
+elif st.session_state.page == "تعديل مستند":
+
+    doc_id = st.session_state.get("edit_id")
+
+    conn = get_connection()
+
+    row = conn.execute(
+        "SELECT * FROM documents WHERE id = ?",
+        (doc_id,)
+    ).fetchone()
+
+    conn.close()
+
+    st.markdown(
+        '<div class="section-title">✏️ تعديل بيانات المستند</div>',
+        unsafe_allow_html=True
+    )
+
+    if row:
+
+        with st.form("edit_document_form"):
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                new_number = st.text_input(
+                    "رقم الخطاب",
+                    value=row["doc_number"]
                 )
 
-        with b2:
-            if st.button(
-                "✏️ تعديل",
-                key=f"edit_{doc_id}",
-                use_container_width=True
-            ):
-                st.session_state.edit_id = doc_id
-                st.session_state.delete_id = None
-                st.rerun()
+            with col2:
+                try:
+                    current_date = date.fromisoformat(
+                        row["doc_date"]
+                    )
+                except ValueError:
+                    current_date = date.today()
 
-        with b3:
-            if st.button(
-                "🗑️ حذف",
-                key=f"delete_{doc_id}",
-                use_container_width=True
-            ):
-                st.session_state.delete_id = doc_id
-                st.rerun()
+                new_date = st.date_input(
+                    "تاريخ الخطاب",
+                    value=current_date,
+                    format="YYYY/MM/DD"
+                )
 
-        # =================================================
-        # تأكيد الحذف
-        # =================================================
-
-        if st.session_state.delete_id == doc_id:
-
-            st.warning(
-                "هل أنت متأكد من حذف السجل وملف PDF المرتبط به؟"
+            new_party = st.text_input(
+                "الجهة",
+                value=row["party"]
             )
 
-            d1, d2 = st.columns(2)
+            new_subject = st.text_input(
+                "موضوع الخطاب",
+                value=row["subject"]
+            )
 
-            with d1:
-                if st.button(
-                    "نعم، حذف نهائي",
-                    key=f"confirm_delete_{doc_id}",
-                    type="primary",
-                    use_container_width=True
-                ):
+            new_file = st.file_uploader(
+                "استبدال ملف PDF (اختياري)",
+                type=["pdf"]
+            )
+
+            save_changes = st.form_submit_button(
+                "💾 حفظ التعديلات",
+                type="primary",
+                use_container_width=True
+            )
+
+            if save_changes:
+
+                if not new_number.strip() or not new_party.strip() or not new_subject.strip():
+                    st.error("يرجى استكمال جميع البيانات المطلوبة.")
+
+                else:
+                    old_file_path = row["file_path"]
+                    updated_file_path = old_file_path
+
                     try:
-                        delete_document(doc_id)
-                        st.session_state.delete_id = None
-                        st.success("تم حذف السجل.")
+                        if new_file is not None:
+                            updated_file_path = save_uploaded_file(
+                                new_file,
+                                row["doc_type"]
+                            )
+
+                        conn = get_connection()
+
+                        conn.execute("""
+                            UPDATE documents
+                            SET doc_number = ?,
+                                doc_date = ?,
+                                party = ?,
+                                subject = ?,
+                                file_path = ?
+                            WHERE id = ?
+                        """, (
+                            new_number.strip(),
+                            new_date.strftime("%Y-%m-%d"),
+                            new_party.strip(),
+                            new_subject.strip(),
+                            updated_file_path,
+                            doc_id
+                        ))
+
+                        conn.commit()
+                        conn.close()
+
+                        # حذف الملف القديم بعد نجاح تحديث قاعدة البيانات
+                        if new_file is not None and old_file_path:
+                            old_path = Path(old_file_path)
+
+                            try:
+                                if (
+                                    old_path.exists()
+                                    and ARCHIVE_DIR.resolve() in old_path.resolve().parents
+                                ):
+                                    old_path.unlink()
+                            except OSError:
+                                pass
+
+                        st.success("تم تعديل المستند بنجاح.")
+
+                        go_to("عرض السجلات")
                         st.rerun()
 
                     except Exception as e:
-                        st.error(f"تعذر الحذف: {e}")
+                        st.error(f"حدث خطأ أثناء التعديل: {e}")
 
-            with d2:
-                if st.button(
-                    "إلغاء الحذف",
-                    key=f"cancel_delete_{doc_id}",
-                    use_container_width=True
-                ):
-                    st.session_state.delete_id = None
-                    st.rerun()
+    else:
+        st.error("المستند غير موجود.")
 
-        st.divider()
+    if st.button("⬅️ العودة للسجلات"):
+        go_to("عرض السجلات")
+        st.rerun()
 
-# =========================================================
-# 10. الفوتر
-# =========================================================
+
+# ==========================================
+# تأكيد حذف مستند
+# ==========================================
+
+elif st.session_state.page == "تأكيد الحذف":
+
+    doc_id = st.session_state.get("delete_id")
+
+    st.markdown(
+        '<div class="section-title">🗑️ حذف مستند</div>',
+        unsafe_allow_html=True
+    )
+
+    st.warning(
+        "هل أنت متأكد من حذف هذا المستند وملف PDF المرتبط به؟ "
+        "لا يمكن التراجع عن هذه العملية."
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button(
+            "نعم، حذف المستند",
+            type="primary"
+        ):
+            delete_document(doc_id)
+
+            st.success("تم حذف المستند بنجاح.")
+
+            go_to("عرض السجلات")
+            st.rerun()
+
+    with col2:
+        if st.button("إلغاء"):
+            go_to("عرض السجلات")
+            st.rerun()
+
+
+# ==========================================
+# الفوتر
+# ==========================================
 
 st.markdown("""
 <div class="footer">
-    ✦ تصميم وتنفيذ أحمد الجنزوري ✦
+✦ تصميم وتنفيذ أحمد الجنزوري ✦
 </div>
 """, unsafe_allow_html=True)
