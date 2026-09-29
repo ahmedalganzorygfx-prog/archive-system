@@ -583,16 +583,22 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    password = st.text_input(
-        "🔐 كلمة المرور",
-        type="password",
-        placeholder="أدخل كلمة المرور"
-    )
+    # ========================================================
+    # تسجيل الدخول
+    # ========================================================
 
-    login_clicked = st.button(
-        "🔓 تسجيل الدخول",
-        type="primary"
-    )
+    with st.form(key="login_form"):
+
+        password = st.text_input(
+            "🔐 كلمة المرور",
+            type="password",
+            placeholder="أدخل كلمة المرور"
+        )
+
+        login_clicked = st.form_submit_button(
+            "🔓 تسجيل الدخول",
+            type="primary"
+        )
 
     st.markdown(
         '</div>',
@@ -614,7 +620,7 @@ if not st.session_state.authenticated:
     st.markdown(
         """
         <div class="custom-footer">
-        ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+            ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
         </div>
         """,
         unsafe_allow_html=True
@@ -625,8 +631,11 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    st.stop()
+    # ========================================================
+    # مهم جدًا: منع ظهور الصفحة الداخلية بدون تسجيل الدخول
+    # ========================================================
 
+    st.stop()
 
 # ============================================================
 # قاعدة البيانات
