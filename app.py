@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import sqlite3
 import base64
@@ -62,10 +63,6 @@ st.markdown(
     """
     <style>
 
-    /* ======================================================
-       الصفحة العامة
-       ====================================================== */
-
     html,
     body {
         margin: 0 !important;
@@ -83,17 +80,10 @@ st.markdown(
     .block-container {
         max-width: 900px !important;
         width: 94% !important;
-
         padding-top: 10px !important;
         padding-bottom: 25px !important;
-
         margin: 0 auto !important;
     }
-
-
-    /* ======================================================
-       إخفاء عناصر Streamlit العلوية
-       ====================================================== */
 
     header,
     [data-testid="stHeader"],
@@ -107,184 +97,108 @@ st.markdown(
         height: 0 !important;
     }
 
-
-    /* ======================================================
-       شاشة تسجيل الدخول
-       ====================================================== */
-
     .login-container {
         width: 100%;
-
         display: flex;
         flex-direction: column;
-
         align-items: center;
         justify-content: flex-start;
-
         text-align: center;
-
         padding-top: 10px;
         padding-bottom: 20px;
-
         margin: 0 auto;
     }
 
-
-    /* ======================================================
-       اللوجو في شاشة الدخول
-       ====================================================== */
-
     .login-logo-container {
         width: 100%;
-
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-
         text-align: center !important;
-
         margin: 0 auto 12px auto !important;
         padding: 0 !important;
     }
 
     .login-logo-container img {
         display: block !important;
-
         width: 180px !important;
         height: 180px !important;
-
         object-fit: contain;
-
         margin-left: auto !important;
         margin-right: auto !important;
-
         position: relative !important;
         left: auto !important;
         right: auto !important;
     }
 
-
-    /* ======================================================
-       عنوان شاشة الدخول
-       ====================================================== */
-
     .login-main-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #17365d;
-
         font-size: 32px;
         font-weight: 900;
-
         line-height: 1.5;
-
         margin: 0 auto 4px auto;
     }
 
     .login-sub-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #294d7c;
-
         font-size: 21px;
         font-weight: 700;
-
         line-height: 1.5;
-
         margin: 0 auto 18px auto;
     }
-
-
-    /* ======================================================
-       صندوق الدخول
-       ====================================================== */
 
     .login-box {
         width: 100%;
         max-width: 430px;
-
         margin: 0 auto;
-
         text-align: right;
     }
 
-
-    /* ======================================================
-       اللوجو الداخلي
-       ====================================================== */
-
     .internal-logo-container {
         width: 100%;
-
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-
         text-align: center !important;
-
         margin: 0 auto 8px auto !important;
         padding: 0 !important;
     }
 
     .internal-logo-container img {
         display: block !important;
-
         width: 145px !important;
         height: 145px !important;
-
         object-fit: contain;
-
         margin-left: auto !important;
         margin-right: auto !important;
-
         position: relative !important;
         left: auto !important;
         right: auto !important;
     }
 
-
-    /* ======================================================
-       العناوين الرئيسية
-       ====================================================== */
-
     .main-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #17365d;
-
         font-size: 27px;
         font-weight: 900;
-
         line-height: 1.5;
-
         margin: 0 auto 3px auto;
     }
 
     .sub-title {
         width: 100%;
-
         text-align: center !important;
-
         color: #294d7c;
-
         font-size: 19px;
         font-weight: 600;
-
         line-height: 1.5;
-
         margin: 0 auto 18px auto;
     }
-
-
-    /* ======================================================
-       عناوين الأقسام
-       ====================================================== */
 
     .section-title {
         background: linear-gradient(
@@ -292,92 +206,56 @@ st.markdown(
             #17365d,
             #294d7c
         );
-
         color: white;
-
         border-radius: 10px;
-
         padding: 10px 15px;
-
         margin-top: 12px;
         margin-bottom: 10px;
-
         font-size: 20px;
         font-weight: 800;
-
         text-align: right;
     }
 
-
-    /* ======================================================
-       البطاقات
-       ====================================================== */
-
     .info-card {
         background: white;
-
         border-radius: 12px;
-
         padding: 15px;
-
         margin-bottom: 12px;
-
         box-shadow:
             0 2px 8px rgba(0, 0, 0, 0.08);
-
         border: 1px solid #e5eaf0;
+
+        direction: rtl !important;
+        text-align: right !important;
     }
-
-
-    /* ======================================================
-       تفاصيل السجلات
-       ====================================================== */
 
     .record-title {
         color: #17365d;
-
         font-size: 18px;
-
         font-weight: 800;
-
         margin-bottom: 8px;
+        direction: rtl;
+        text-align: right;
     }
 
     .record-line {
         font-size: 15px;
-
         color: #333;
-
         margin: 4px 0;
-
         line-height: 1.7;
+        direction: rtl;
+        text-align: right;
     }
-
-
-    /* ======================================================
-       الفوتر
-       ====================================================== */
 
     .custom-footer {
         width: 100%;
-
         text-align: center;
-
         color: #6b7280;
-
         font-size: 13px;
-
         margin-top: 25px;
-
         padding-top: 10px;
-
         border-top: 1px solid #e5e7eb;
     }
-
-
-    /* ======================================================
-       الحقول
-       ====================================================== */
 
     div[data-testid="stTextInput"] input,
     div[data-testid="stTextArea"] textarea {
@@ -390,76 +268,56 @@ st.markdown(
         text-align: right;
     }
 
-
-    /* ======================================================
-       الأزرار
-       ====================================================== */
-
     .stButton > button {
         width: 100%;
-
         border-radius: 8px;
-
         min-height: 42px;
-
         font-weight: 700;
     }
-
-
-    /* ======================================================
-       رفع الملفات
-       ====================================================== */
 
     section[data-testid="stFileUploader"] {
         direction: rtl;
         text-align: right;
     }
 
-
-    /* ======================================================
-       Expander
-       ====================================================== */
-
     div[data-testid="stExpander"] {
         border-radius: 10px !important;
-
         border: 1px solid #e1e7ef !important;
-
         background: white !important;
-
         margin-bottom: 10px !important;
+
+        direction: rtl !important;
+        text-align: right !important;
     }
 
+    div[data-testid="stExpander"] > details {
+        direction: rtl !important;
+        text-align: right !important;
+    }
 
-    /* ======================================================
-       الرسائل
-       ====================================================== */
+    div[data-testid="stExpander"] summary {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+
+    div[data-testid="stExpander"] summary p {
+        direction: rtl !important;
+        text-align: right !important;
+    }
 
     div[data-testid="stAlert"] {
         direction: rtl;
-
         text-align: right;
     }
-
-
-    /* ======================================================
-       Selectbox
-       ====================================================== */
 
     div[data-baseweb="select"] {
         direction: rtl;
     }
 
-
-    /* ======================================================
-       الشاشات الصغيرة
-       ====================================================== */
-
     @media (max-width: 600px) {
 
         .block-container {
             width: 94% !important;
-
             padding-top: 5px !important;
         }
 
@@ -583,10 +441,6 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    # ========================================================
-    # تسجيل الدخول
-    # ========================================================
-
     with st.form(key="login_form"):
 
         password = st.text_input(
@@ -631,11 +485,8 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    # ========================================================
-    # مهم جدًا: منع ظهور الصفحة الداخلية بدون تسجيل الدخول
-    # ========================================================
-
     st.stop()
+
 
 # ============================================================
 # قاعدة البيانات
@@ -682,6 +533,42 @@ def init_db():
 
 
 init_db()
+
+
+# ============================================================
+# الترقيم التلقائي للمستندات
+# ============================================================
+
+def get_next_document_number(doc_type):
+
+    conn = get_connection()
+
+    row = conn.execute(
+        """
+        SELECT MAX(CAST(doc_number AS INTEGER))
+        FROM documents
+        WHERE doc_type = ?
+        """,
+        (doc_type,)
+    ).fetchone()
+
+    conn.close()
+
+    max_number = row[0]
+
+    if doc_type == "وارد":
+
+        start_number = 961
+
+    else:
+
+        start_number = 1160
+
+    if max_number is None or max_number < start_number:
+
+        return str(start_number)
+
+    return str(max_number + 1)
 
 
 # ============================================================
@@ -1103,9 +990,16 @@ elif st.session_state.page in [
         key=f"add_form_{doc_type}"
     ):
 
-        doc_number = st.text_input(
-            "رقم المستند *",
-            placeholder="أدخل رقم المستند"
+        # ====================================================
+        # الرقم التلقائي
+        # ====================================================
+
+        doc_number = get_next_document_number(doc_type)
+
+        st.text_input(
+            "رقم المستند",
+            value=doc_number,
+            disabled=True
         )
 
         doc_date = st.date_input(
@@ -1313,29 +1207,31 @@ elif st.session_state.page == "السجلات":
                     f"""
                     <div class="info-card">
 
-<div class="record-title">
-    📥 بيانات المستند
-</div>
+                        <div class="record-title">
+                            📥 بيانات المستند
+                        </div>
 
-<div class="record-line">
-    <b>النوع:</b> وارد
-</div>
+                        <div class="record-line">
+                            <b>النوع:</b> وارد
+                        </div>
 
-<div class="record-line">
-    <b>رقم المستند:</b> 122
-</div>
+                        <div class="record-line">
+                            <b>رقم المستند:</b> 122
+                        </div>
 
-<div class="record-line">
-    <b>التاريخ:</b> 29/09/2026
-</div>
+                        <div class="record-line">
+                            <b>التاريخ:</b> 29/09/2026
+                        </div>
 
-<div class="record-line">
-    <b>الجهة:</b> الاكاديمية
-</div>
+                        <div class="record-line">
+                            <b>الجهة:</b> الاكاديمية
+                        </div>
 
-<div class="record-line">
-    <b>الموضوع:</b> اعادة تعيين
-</div>
+                        <div class="record-line">
+                            <b>الموضوع:</b> اعادة تعيين
+                        </div>
+
+                    </div>
                     """,
                     unsafe_allow_html=True
                 )
@@ -1895,3 +1791,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+```
