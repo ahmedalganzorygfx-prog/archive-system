@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import sqlite3
 import os
@@ -163,4 +162,3 @@ documents_count = cursor.fetchone()[0]
 conn.close()
 
 st.info(f"عدد المستندات المسجلة حاليًا: {documents_count}")
-```
