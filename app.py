@@ -96,6 +96,10 @@ st.markdown(
         height: 0 !important;
     }
 
+    /* ========================================================
+       شاشة الدخول
+       ======================================================== */
+
     .login-container {
         width: 100%;
         display: flex;
@@ -157,6 +161,11 @@ st.markdown(
         text-align: right;
     }
 
+
+    /* ========================================================
+       رأس البرنامج الداخلي
+       ======================================================== */
+
     .internal-logo-container {
         width: 100%;
         display: flex !important;
@@ -199,6 +208,11 @@ st.markdown(
         margin: 0 auto 18px auto;
     }
 
+
+    /* ========================================================
+       العناوين
+       ======================================================== */
+
     .section-title {
         background: linear-gradient(
             90deg,
@@ -214,6 +228,11 @@ st.markdown(
         font-weight: 800;
         text-align: right;
     }
+
+
+    /* ========================================================
+       بطاقة البيانات
+       ======================================================== */
 
     .info-card {
         background: white;
@@ -232,19 +251,101 @@ st.markdown(
         color: #17365d;
         font-size: 18px;
         font-weight: 800;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         direction: rtl;
         text-align: right;
     }
 
+
+    /* ========================================================
+       السطر الواحد للبيانات
+       
+       مهم:
+       استخدمنا Grid باتجاه LTR للتحكم في مكان العمودين
+       بشكل ثابت، بينما النص نفسه RTL.
+       ======================================================== */
+
     .record-line {
+        display: grid !important;
+
+        /* العمود الأول = القيمة
+           العمود الثاني = العنوان */
+        grid-template-columns:
+            minmax(0, 1fr)
+            max-content !important;
+
+        direction: ltr !important;
+
+        width: 100% !important;
+
+        margin: 5px 0 !important;
+
+        padding: 2px 0 !important;
+
         font-size: 15px;
-        color: #333;
-        margin: 4px 0;
-        line-height: 1.7;
-        direction: rtl;
-        text-align: right;
+
+        line-height: 1.8;
+
+        align-items: center !important;
+
+        column-gap: 8px !important;
     }
+
+
+    /* العنوان يظهر في العمود الأيمن */
+
+    .record-label {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+
+        direction: rtl !important;
+
+        text-align: right !important;
+
+        white-space: nowrap !important;
+
+        font-weight: 800 !important;
+
+        color: #17365d !important;
+
+        unicode-bidi: isolate !important;
+    }
+
+
+    /* القيمة تظهر مباشرة إلى يسار العنوان */
+
+    .record-value {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+
+        direction: rtl !important;
+
+        text-align: right !important;
+
+        color: #333 !important;
+
+        unicode-bidi: isolate !important;
+
+        min-width: 0 !important;
+
+        overflow-wrap: anywhere !important;
+    }
+
+
+    /* الأرقام والتاريخ */
+
+    .record-value.ltr {
+        direction: ltr !important;
+
+        text-align: right !important;
+
+        unicode-bidi: isolate !important;
+    }
+
+
+    /* ========================================================
+       الفوتر
+       ======================================================== */
 
     .custom-footer {
         width: 100%;
@@ -255,6 +356,11 @@ st.markdown(
         padding-top: 10px;
         border-top: 1px solid #e5e7eb;
     }
+
+
+    /* ========================================================
+       الحقول
+       ======================================================== */
 
     div[data-testid="stTextInput"] input,
     div[data-testid="stTextArea"] textarea {
@@ -267,6 +373,11 @@ st.markdown(
         text-align: right;
     }
 
+
+    /* ========================================================
+       الأزرار
+       ======================================================== */
+
     .stButton > button {
         width: 100%;
         border-radius: 8px;
@@ -274,10 +385,20 @@ st.markdown(
         font-weight: 700;
     }
 
+
+    /* ========================================================
+       رفع الملفات
+       ======================================================== */
+
     section[data-testid="stFileUploader"] {
         direction: rtl;
         text-align: right;
     }
+
+
+    /* ========================================================
+       Expander
+       ======================================================== */
 
     div[data-testid="stExpander"] {
         border-radius: 10px !important;
@@ -304,14 +425,29 @@ st.markdown(
         text-align: right !important;
     }
 
+
+    /* ========================================================
+       التنبيهات
+       ======================================================== */
+
     div[data-testid="stAlert"] {
         direction: rtl;
         text-align: right;
     }
 
+
+    /* ========================================================
+       Selectbox
+       ======================================================== */
+
     div[data-baseweb="select"] {
         direction: rtl;
     }
+
+
+    /* ========================================================
+       الهاتف
+       ======================================================== */
 
     @media (max-width: 600px) {
 
@@ -352,6 +488,11 @@ st.markdown(
 
         .section-title {
             font-size: 17px;
+        }
+
+        .record-line {
+            font-size: 14px !important;
+            column-gap: 6px !important;
         }
 
     }
@@ -989,10 +1130,6 @@ elif st.session_state.page in [
         key=f"add_form_{doc_type}"
     ):
 
-        # ====================================================
-        # الرقم التلقائي
-        # ====================================================
-
         doc_number = get_next_document_number(doc_type)
 
         st.text_input(
@@ -1202,32 +1339,61 @@ elif st.session_state.page == "السجلات":
                 expander_title
             ):
 
+                # ====================================================
+                # بيانات المستند
+                # ====================================================
+
                 st.markdown(
                     f"""
                     <div class="info-card">
 
                         <div class="record-title">
-                            📥 بيانات المستند
+                            {icon} بيانات المستند
                         </div>
 
                         <div class="record-line">
-                            <b>النوع:</b> وارد
+                            <span class="record-label">
+                                النوع:
+                            </span>
+                            <span class="record-value">
+                                {row["doc_type"]}
+                            </span>
                         </div>
 
                         <div class="record-line">
-                            <b>رقم المستند:</b> 122
+                            <span class="record-label">
+                                رقم المستند:
+                            </span>
+                            <span class="record-value ltr">
+                                {row["doc_number"]}
+                            </span>
                         </div>
 
                         <div class="record-line">
-                            <b>التاريخ:</b> 29/09/2026
+                            <span class="record-label">
+                                التاريخ:
+                            </span>
+                            <span class="record-value ltr">
+                                {row["doc_date"]}
+                            </span>
                         </div>
 
                         <div class="record-line">
-                            <b>الجهة:</b> الاكاديمية
+                            <span class="record-label">
+                                الجهة:
+                            </span>
+                            <span class="record-value">
+                                {row["party"]}
+                            </span>
                         </div>
 
                         <div class="record-line">
-                            <b>الموضوع:</b> اعادة تعيين
+                            <span class="record-label">
+                                الموضوع:
+                            </span>
+                            <span class="record-value">
+                                {row["subject"]}
+                            </span>
                         </div>
 
                     </div>
@@ -1399,29 +1565,53 @@ elif st.session_state.page == "البحث":
                         f"""
                         <div class="info-card">
 
-                            <div class="record-line">
-                                <b>النوع:</b>
-                                {row["doc_type"]}
+                            <div class="record-title">
+                                {icon} بيانات المستند
                             </div>
 
                             <div class="record-line">
-                                <b>رقم المستند:</b>
-                                {row["doc_number"]}
+                                <span class="record-label">
+                                    النوع:
+                                </span>
+                                <span class="record-value">
+                                    {row["doc_type"]}
+                                </span>
                             </div>
 
                             <div class="record-line">
-                                <b>التاريخ:</b>
-                                {row["doc_date"]}
+                                <span class="record-label">
+                                    رقم المستند:
+                                </span>
+                                <span class="record-value ltr">
+                                    {row["doc_number"]}
+                                </span>
                             </div>
 
                             <div class="record-line">
-                                <b>الجهة:</b>
-                                {row["party"]}
+                                <span class="record-label">
+                                    التاريخ:
+                                </span>
+                                <span class="record-value ltr">
+                                    {row["doc_date"]}
+                                </span>
                             </div>
 
                             <div class="record-line">
-                                <b>الموضوع:</b>
-                                {row["subject"]}
+                                <span class="record-label">
+                                    الجهة:
+                                </span>
+                                <span class="record-value">
+                                    {row["party"]}
+                                </span>
+                            </div>
+
+                            <div class="record-line">
+                                <span class="record-label">
+                                    الموضوع:
+                                </span>
+                                <span class="record-value">
+                                    {row["subject"]}
+                                </span>
                             </div>
 
                         </div>
