@@ -588,38 +588,75 @@ if not st.session_state.authenticated:
     # مع الإبقاء على زر تسجيل الدخول
     # ========================================================
 
-    with st.form(
-        key="login_form"
-    ):
+st.markdown(
+    '<div class="login-box">',
+    unsafe_allow_html=True
+)
 
-        password = st.text_input(
-            "🔐 كلمة المرور",
-            type="password",
-            placeholder="أدخل كلمة المرور"
-        )
+password = st.text_input(
+    "🔐 كلمة المرور",
+    type="password",
+    placeholder="أدخل كلمة المرور",
+    key="login_password"
+)
 
-        login_clicked = st.form_submit_button(
-            "🔓 تسجيل الدخول",
-            type="primary"
-        )
+login_clicked = st.button(
+    "🔓 تسجيل الدخول",
+    type="primary",
+    key="login_button"
+)
 
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+# تفعيل مفتاح Enter لتسجيل الدخول
+st.markdown(
+    """
+    <script>
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
 
-    if login_clicked:
+            const activeElement = document.activeElement;
 
-        if password == APP_PASSWORD:
+            if (
+                activeElement &&
+                activeElement.tagName === "INPUT" &&
+                activeElement.type === "password"
+            ) {
+                event.preventDefault();
 
-            st.session_state.authenticated = True
+                const buttons = Array.from(
+                    document.querySelectorAll('button')
+                );
 
-            st.rerun()
+                const loginButton = buttons.find(
+                    button => button.innerText.includes("تسجيل الدخول")
+                );
 
-        else:
+                if (loginButton) {
+                    loginButton.click();
+                }
+            }
+        }
+    });
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
-            st.error("❌ كلمة المرور غير صحيحة")
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True
+)
 
+if login_clicked:
+
+    if password == APP_PASSWORD:
+
+        st.session_state.authenticated = True
+
+        st.rerun()
+
+    else:
+
+        st.error("❌ كلمة المرور غير صحيحة")
     st.markdown(
         """
         <div class="custom-footer">
