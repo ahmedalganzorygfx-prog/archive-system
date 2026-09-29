@@ -583,84 +583,38 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    # ========================================================
-    # تم استخدام Form للسماح بالضغط على Enter
-    # مع الإبقاء على زر تسجيل الدخول
-    # ========================================================
+    password = st.text_input(
+        "🔐 كلمة المرور",
+        type="password",
+        placeholder="أدخل كلمة المرور"
+    )
 
-st.markdown(
-    '<div class="login-box">',
-    unsafe_allow_html=True
-)
+    login_clicked = st.button(
+        "🔓 تسجيل الدخول",
+        type="primary"
+    )
 
-password = st.text_input(
-    "🔐 كلمة المرور",
-    type="password",
-    placeholder="أدخل كلمة المرور",
-    key="login_password"
-)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-login_clicked = st.button(
-    "🔓 تسجيل الدخول",
-    type="primary",
-    key="login_button"
-)
+    if login_clicked:
 
-# تفعيل مفتاح Enter لتسجيل الدخول
-st.markdown(
-    """
-    <script>
-    document.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
+        if password == APP_PASSWORD:
 
-            const activeElement = document.activeElement;
+            st.session_state.authenticated = True
 
-            if (
-                activeElement &&
-                activeElement.tagName === "INPUT" &&
-                activeElement.type === "password"
-            ) {
-                event.preventDefault();
+            st.rerun()
 
-                const buttons = Array.from(
-                    document.querySelectorAll('button')
-                );
+        else:
 
-                const loginButton = buttons.find(
-                    button => button.innerText.includes("تسجيل الدخول")
-                );
+            st.error("❌ كلمة المرور غير صحيحة")
 
-                if (loginButton) {
-                    loginButton.click();
-                }
-            }
-        }
-    });
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '</div>',
-    unsafe_allow_html=True
-)
-
-if login_clicked:
-
-    if password == APP_PASSWORD:
-
-        st.session_state.authenticated = True
-
-        st.rerun()
-
-    else:
-
-        st.error("❌ كلمة المرور غير صحيحة")
     st.markdown(
         """
         <div class="custom-footer">
-            ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+            ✦ تصميم وتنفيذ أحمد الجنزوري ✦
         </div>
         """,
         unsafe_allow_html=True
@@ -1350,36 +1304,29 @@ elif st.session_state.page == "السجلات":
                     f"""
                     <div class="info-card">
 
-                        <div class="record-title">
-                            📥 بيانات المستند
-                        </div>
+<div class="record-title">
+    📥 بيانات المستند
+</div>
 
-                        <div class="record-line">
-                            <b>النوع:</b>
-                            {row["doc_type"]}
-                        </div>
+<div class="record-line">
+    <b>النوع:</b> وارد
+</div>
 
-                        <div class="record-line">
-                            <b>رقم المستند:</b>
-                            {row["doc_number"]}
-                        </div>
+<div class="record-line">
+    <b>رقم المستند:</b> 122
+</div>
 
-                        <div class="record-line">
-                            <b>التاريخ:</b>
-                            {row["doc_date"]}
-                        </div>
+<div class="record-line">
+    <b>التاريخ:</b> 29/09/2026
+</div>
 
-                        <div class="record-line">
-                            <b>الجهة:</b>
-                            {row["party"]}
-                        </div>
+<div class="record-line">
+    <b>الجهة:</b> الاكاديمية
+</div>
 
-                        <div class="record-line">
-                            <b>الموضوع:</b>
-                            {row["subject"]}
-                        </div>
-
-                    </div>
+<div class="record-line">
+    <b>الموضوع:</b> اعادة تعيين
+</div>
                     """,
                     unsafe_allow_html=True
                 )
@@ -1934,7 +1881,7 @@ st.markdown(
     <div class="custom-footer">
         الأكاديمية المهنية للمعلمين - فرع الجيزة
         <br>
-        ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+        ✦ تصميم وتنفيذ أحمد الجنزوري ✦
     </div>
     """,
     unsafe_allow_html=True
