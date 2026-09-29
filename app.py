@@ -28,13 +28,9 @@ if "authenticated" not in st.session_state:
 if not st.session_state.authenticated:
     st.markdown(
         '''
-        <div style="
-            text-align:center;
-            margin-top: 80px;
-            direction:rtl;
-        ">
-            <h2 style="color:#17365d;">منظومة الوارد والصادر</h2>
-            <p style="color:#294d7c;">الأكاديمية المهنية للمعلمين – فرع الجيزة</p>
+        <div class="app-header" style="margin-top: 70px;">
+            <div class="main-title">الأكاديمية المهنية للمعلمين – فرع الجيزة</div>
+            <div class="sub-title">المنظومة الرقمية للوارد والصادر</div>
         </div>
         ''',
         unsafe_allow_html=True
