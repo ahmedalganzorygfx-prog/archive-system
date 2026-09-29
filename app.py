@@ -583,25 +583,16 @@ if not st.session_state.authenticated:
         unsafe_allow_html=True
     )
 
-    # ========================================================
-    # تم استخدام Form للسماح بالضغط على Enter
-    # مع الإبقاء على زر تسجيل الدخول
-    # ========================================================
+    password = st.text_input(
+        "🔐 كلمة المرور",
+        type="password",
+        placeholder="أدخل كلمة المرور"
+    )
 
-    with st.form(
-        key="login_form"
-    ):
-
-        password = st.text_input(
-            "🔐 كلمة المرور",
-            type="password",
-            placeholder="أدخل كلمة المرور"
-        )
-
-        login_clicked = st.form_submit_button(
-            "🔓 تسجيل الدخول",
-            type="primary"
-        )
+    login_clicked = st.button(
+        "🔓 تسجيل الدخول",
+        type="primary"
+    )
 
     st.markdown(
         '</div>',
@@ -623,7 +614,7 @@ if not st.session_state.authenticated:
     st.markdown(
         """
         <div class="custom-footer">
-            ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+            ✦ تصميم وتنفيذ أحمد الجنزوري ✦
         </div>
         """,
         unsafe_allow_html=True
@@ -1313,36 +1304,29 @@ elif st.session_state.page == "السجلات":
                     f"""
                     <div class="info-card">
 
-                        <div class="record-title">
-                            📥 بيانات المستند
-                        </div>
+<div class="record-title">
+    📥 بيانات المستند
+</div>
 
-                        <div class="record-line">
-                            <b>النوع:</b>
-                            {row["doc_type"]}
-                        </div>
+<div class="record-line">
+    <b>النوع:</b> وارد
+</div>
 
-                        <div class="record-line">
-                            <b>رقم المستند:</b>
-                            {row["doc_number"]}
-                        </div>
+<div class="record-line">
+    <b>رقم المستند:</b> 122
+</div>
 
-                        <div class="record-line">
-                            <b>التاريخ:</b>
-                            {row["doc_date"]}
-                        </div>
+<div class="record-line">
+    <b>التاريخ:</b> 29/09/2026
+</div>
 
-                        <div class="record-line">
-                            <b>الجهة:</b>
-                            {row["party"]}
-                        </div>
+<div class="record-line">
+    <b>الجهة:</b> الاكاديمية
+</div>
 
-                        <div class="record-line">
-                            <b>الموضوع:</b>
-                            {row["subject"]}
-                        </div>
-
-                    </div>
+<div class="record-line">
+    <b>الموضوع:</b> اعادة تعيين
+</div>
                     """,
                     unsafe_allow_html=True
                 )
@@ -1897,7 +1881,7 @@ st.markdown(
     <div class="custom-footer">
         الأكاديمية المهنية للمعلمين - فرع الجيزة
         <br>
-        ✦ تصميم وتنفيذ أحمد الجنزوري - مدير الفرع ✦
+        ✦ تصميم وتنفيذ أحمد الجنزوري ✦
     </div>
     """,
     unsafe_allow_html=True
