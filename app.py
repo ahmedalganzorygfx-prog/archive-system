@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import base64
 from pathlib import Path
+import textwrap
 from datetime import date, datetime
 
 
@@ -215,7 +216,6 @@ st.markdown(
         text-align: right;
     }
 
-    /* بطاقة بيانات المستند - RTL فقط */
     .info-card {
         background: white;
         border-radius: 12px;
@@ -227,36 +227,24 @@ st.markdown(
 
         direction: rtl !important;
         text-align: right !important;
-        unicode-bidi: plaintext !important;
-        width: 100%;
-        box-sizing: border-box;
     }
 
-    .info-card .record-title {
+    .record-title {
         color: #17365d;
         font-size: 18px;
         font-weight: 800;
         margin-bottom: 8px;
-        direction: rtl !important;
-        text-align: right !important;
-        unicode-bidi: plaintext !important;
-        width: 100%;
+        direction: rtl;
+        text-align: right;
     }
 
-    .info-card .record-line {
+    .record-line {
         font-size: 15px;
         color: #333;
         margin: 4px 0;
         line-height: 1.7;
-        direction: rtl !important;
-        text-align: right !important;
-        unicode-bidi: plaintext !important;
-        width: 100%;
-    }
-
-    .info-card .record-line b {
-        direction: rtl !important;
-        unicode-bidi: embed !important;
+        direction: rtl;
+        text-align: right;
     }
 
     .custom-footer {
@@ -1216,35 +1204,28 @@ elif st.session_state.page == "السجلات":
             ):
 
                 st.markdown(
-                    f"""
-                    <div class="info-card" dir="rtl">
-
-                        <div class="record-title">
-                            📥 بيانات المستند
+                    textwrap.dedent(f"""
+                        <div class="info-card" dir="rtl" style="direction:rtl !important; text-align:right !important; unicode-bidi:plaintext;">
+                            <div class="record-title" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                📥 بيانات المستند
+                            </div>
+                            <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                <b>النوع:</b> {row["doc_type"]}
+                            </div>
+                            <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                <b>رقم المستند:</b> {row["doc_number"]}
+                            </div>
+                            <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                <b>التاريخ:</b> {row["doc_date"]}
+                            </div>
+                            <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                <b>الجهة:</b> {row["party"]}
+                            </div>
+                            <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                <b>الموضوع:</b> {row["subject"]}
+                            </div>
                         </div>
-
-                        <div class="record-line">
-                            <b>النوع:</b> وارد
-                        </div>
-
-                        <div class="record-line">
-                            <b>رقم المستند:</b> 122
-                        </div>
-
-                        <div class="record-line">
-                            <b>التاريخ:</b> 29/09/2026
-                        </div>
-
-                        <div class="record-line">
-                            <b>الجهة:</b> الاكاديمية
-                        </div>
-
-                        <div class="record-line">
-                            <b>الموضوع:</b> اعادة تعيين
-                        </div>
-
-                    </div>
-                    """,
+                    """).strip(),
                     unsafe_allow_html=True
                 )
 
@@ -1409,36 +1390,25 @@ elif st.session_state.page == "البحث":
                 with st.expander(title):
 
                     st.markdown(
-                        f"""
-                        <div class="info-card" dir="rtl">
-
-                            <div class="record-line">
-                                <b>النوع:</b>
-                                {row["doc_type"]}
+                        textwrap.dedent(f"""
+                            <div class="info-card" dir="rtl" style="direction:rtl !important; text-align:right !important; unicode-bidi:plaintext;">
+                                <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                    <b>النوع:</b> {row["doc_type"]}
+                                </div>
+                                <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                    <b>رقم المستند:</b> {row["doc_number"]}
+                                </div>
+                                <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                    <b>التاريخ:</b> {row["doc_date"]}
+                                </div>
+                                <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                    <b>الجهة:</b> {row["party"]}
+                                </div>
+                                <div class="record-line" dir="rtl" style="direction:rtl !important; text-align:right !important;">
+                                    <b>الموضوع:</b> {row["subject"]}
+                                </div>
                             </div>
-
-                            <div class="record-line">
-                                <b>رقم المستند:</b>
-                                {row["doc_number"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>التاريخ:</b>
-                                {row["doc_date"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>الجهة:</b>
-                                {row["party"]}
-                            </div>
-
-                            <div class="record-line">
-                                <b>الموضوع:</b>
-                                {row["subject"]}
-                            </div>
-
-                        </div>
-                        """,
+                        """).strip(),
                         unsafe_allow_html=True
                     )
 
