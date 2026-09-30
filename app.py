@@ -215,6 +215,7 @@ st.markdown(
         text-align: right;
     }
 
+    /* بطاقة بيانات المستند - RTL فقط */
     .info-card {
         background: white;
         border-radius: 12px;
@@ -226,24 +227,36 @@ st.markdown(
 
         direction: rtl !important;
         text-align: right !important;
+        unicode-bidi: plaintext !important;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .record-title {
+    .info-card .record-title {
         color: #17365d;
         font-size: 18px;
         font-weight: 800;
         margin-bottom: 8px;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
+        unicode-bidi: plaintext !important;
+        width: 100%;
     }
 
-    .record-line {
+    .info-card .record-line {
         font-size: 15px;
         color: #333;
         margin: 4px 0;
         line-height: 1.7;
-        direction: rtl;
-        text-align: right;
+        direction: rtl !important;
+        text-align: right !important;
+        unicode-bidi: plaintext !important;
+        width: 100%;
+    }
+
+    .info-card .record-line b {
+        direction: rtl !important;
+        unicode-bidi: embed !important;
     }
 
     .custom-footer {
@@ -1204,7 +1217,7 @@ elif st.session_state.page == "السجلات":
 
                 st.markdown(
                     f"""
-                    <div class="info-card">
+                    <div class="info-card" dir="rtl">
 
                         <div class="record-title">
                             📥 بيانات المستند
@@ -1397,7 +1410,7 @@ elif st.session_state.page == "البحث":
 
                     st.markdown(
                         f"""
-                        <div class="info-card">
+                        <div class="info-card" dir="rtl">
 
                             <div class="record-line">
                                 <b>النوع:</b>
