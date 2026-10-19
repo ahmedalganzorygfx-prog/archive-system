@@ -1019,10 +1019,11 @@ elif st.session_state.page in [
             height=100
         )
 
+        # [تعديل] دعم رفع ملفات PDF والصور بجميع أنواعها المطلوبة
         uploaded_file = st.file_uploader(
-            "إرفاق ملف PDF",
-            type=["pdf"],
-            help="يمكنك اختيار ملف PDF لأرشفته مع المستند."
+            "إرفاق ملف (PDF, PNG, JPG, JPEG)",
+            type=["pdf", "png", "jpg", "jpeg"],
+            help="يمكنك اختيار ملف PDF أو صور بصيغة PNG أو JPG أو JPEG لأرشفته مع المستند."
         )
 
         col1, col2 = st.columns(2)
@@ -1241,13 +1242,24 @@ elif st.session_state.page == "السجلات":
                         with open(
                             file_path,
                             "rb"
-                        ) as pdf_file:
+                        ) as doc_file:
+
+                            file_suffix = file_path.suffix.lower()
+                            if file_suffix == ".pdf":
+                                mime_type = "application/pdf"
+                                btn_label = "📥 تحميل ملف PDF"
+                            elif file_suffix in [".png", ".jpg", ".jpeg"]:
+                                mime_type = f"image/{file_suffix.replace('.', '')}"
+                                btn_label = "📥 تحميل الملف المرفق"
+                            else:
+                                mime_type = "application/octet-stream"
+                                btn_label = "📥 تحميل الملف"
 
                             st.download_button(
-                                "📥 تحميل ملف PDF",
-                                data=pdf_file.read(),
+                                btn_label,
+                                data=doc_file.read(),
                                 file_name=file_path.name,
-                                mime="application/pdf",
+                                mime=mime_type,
                                 key=f"download_{row['id']}"
                             )
 
@@ -1260,7 +1272,7 @@ elif st.session_state.page == "السجلات":
                 else:
 
                     st.info(
-                        "📄 لا يوجد ملف PDF مرفق."
+                        "📄 لا يوجد ملف مرفق."
                     )
 
 
@@ -1424,13 +1436,24 @@ elif st.session_state.page == "البحث":
                             with open(
                                 file_path,
                                 "rb"
-                            ) as pdf_file:
+                            ) as doc_file:
+
+                                file_suffix = file_path.suffix.lower()
+                                if file_suffix == ".pdf":
+                                    mime_type = "application/pdf"
+                                    btn_label = "📥 تحميل ملف PDF"
+                                elif file_suffix in [".png", ".jpg", ".jpeg"]:
+                                    mime_type = f"image/{file_suffix.replace('.', '')}"
+                                    btn_label = "📥 تحميل الملف المرفق"
+                                else:
+                                    mime_type = "application/octet-stream"
+                                    btn_label = "📥 تحميل الملف"
 
                                 st.download_button(
-                                    "📥 تحميل PDF",
-                                    data=pdf_file.read(),
+                                    btn_label,
+                                    data=doc_file.read(),
                                     file_name=file_path.name,
-                                    mime="application/pdf",
+                                    mime=mime_type,
                                     key=f"search_download_{row['id']}"
                                 )
 
@@ -1554,9 +1577,10 @@ elif st.session_state.page == "تعديل":
                     )
 
 
+                # [تعديل] استبدال الملف بجميع الصيغ المطلوبة
                 new_file = st.file_uploader(
-                    "استبدال ملف PDF",
-                    type=["pdf"],
+                    "استبدال الملف (PDF, PNG, JPG, JPEG)",
+                    type=["pdf", "png", "jpg", "jpeg"],
                     key=f"new_pdf_{document_id}"
                 )
 
