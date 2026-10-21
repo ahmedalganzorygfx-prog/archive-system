@@ -492,46 +492,32 @@ if not st.session_state.authenticated:
 
 
 # ============================================================
-# قاعدة البيانات
+# قاعدة البيانات والتحقق منها
 # ============================================================
 
 def get_connection():
-
     conn = sqlite3.connect(DB_PATH)
-
     conn.row_factory = sqlite3.Row
-
     return conn
 
 
 def init_db():
-
     conn = get_connection()
-
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             doc_type TEXT NOT NULL,
-
             doc_number TEXT NOT NULL,
-
             doc_date TEXT NOT NULL,
-
             party TEXT NOT NULL,
-
             subject TEXT NOT NULL,
-
             file_path TEXT,
-
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
-
     conn.commit()
-
     conn.close()
 
 
@@ -873,6 +859,42 @@ st.markdown(
 
 if st.session_state.page == "الرئيسية":
 
+    # --- [آلية التحقق والتشخيص] ---
+    db_exists = DB_PATH.exists()
+    archive_exists = ARCHIVE_DIR.exists()
+    
+    total_records = 0
+    if db_exists:
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM documents")
+            total_records = cursor.fetchone()[0]
+            conn.close()
+        except Exception:
+            total_records = 0
+
+    # عرض تنبيه إذا كانت القاعدة غير موجودة أو فارغة مع وجود تشغيل جديد
+    if not db_exists or total_records == 0:
+        st.warning(
+            f"⚠️ **تنبيه النظام:** مسار قاعدة البيانات الحالي هو (`{DB_PATH}`). "
+            "إذا كانت هذه قاعدة بيانات جديدة أو تم تغيير المجلد، فل لن تظهر السجلات القديمة. تأكد أن ملف `documents.db` موجود في نفس مجلد البرنامج تماماً."
+        )
+
+    # شريط حالة الأرشيف السريع
+    st.markdown(
+        f"""
+        <div class="info-card">
+            <div class="record-title">🔍 تقرير حالة الأرشيف والمسارات</div>
+            <div class="record-line">📁 <b>مجلد الأرشيف:</b> {'متصل ورسمي ✅' if archive_exists else 'غير موجود ❌'}</div>
+            <div class="record-line">🗄️ <b>قاعدة البيانات:</b> {'متصلة ✅ (' + str(total_records) + ' سجل مسجل)' if db_exists else 'غير موجودة ❌'}</div>
+            <div class="record-line">📂 <b>مسار التشغيل الحالي:</b> <code style="direction:ltr; display:inline-block;">{BASE_DIR}</code></div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    # -----------------------------
+
     st.markdown(
         """
         <div class="section-title">
@@ -1121,7 +1143,6 @@ elif st.session_state.page in [
                     f"✅ تم حفظ المستند {doc_type} بنجاح."
                 )
 
-                # التوجيه المباشر لعرض السجلات وتحديث الفلتر ليعرض النوع المضاف فوراً
                 st.session_state.view_filter = doc_type
                 st.session_state.page = "السجلات"
 
@@ -1172,7 +1193,6 @@ elif st.session_state.page == "السجلات":
         )
     )
 
-    # تحديث الـ session_state عند تغيير الفلتر يدوياً
     st.session_state.view_filter = selected_filter
 
     rows = get_documents(
@@ -1273,7 +1293,7 @@ elif st.session_state.page == "السجلات":
                     else:
 
                         st.warning(
-                            "⚠️ الملف المرفق غير موجود في الأرشيف."
+                            "⚠️ الملف المرفق غير موجود في الأرشيف (قد يكون تم نقله أو حذفه من المسار)."
                         )
 
                 else:
@@ -1752,7 +1772,7 @@ elif st.session_state.page == "تأكيد الحذف":
 
         col1, col2 = st.columns(2)
 
-        with col1:
+    with col1:
 
             if st.button(
                 "🗑️ نعم، حذف المستند",
@@ -1780,7 +1800,7 @@ elif st.session_state.page == "تأكيد الحذف":
                     )
 
 
-        with col2:
+    with col2:
 
             if st.button(
                 "↩️ إلغاء"
