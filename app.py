@@ -4,6 +4,7 @@ import base64
 from pathlib import Path
 import textwrap
 from datetime import date, datetime
+import shutil
 
 
 # ============================================================
@@ -859,7 +860,6 @@ st.markdown(
 
 if st.session_state.page == "الرئيسية":
 
-    # --- [آلية التحقق والتشخيص] ---
     db_exists = DB_PATH.exists()
     archive_exists = ARCHIVE_DIR.exists()
     
@@ -874,14 +874,12 @@ if st.session_state.page == "الرئيسية":
         except Exception:
             total_records = 0
 
-    # عرض تنبيه إذا كانت القاعدة غير موجودة أو فارغة مع وجود تشغيل جديد
     if not db_exists or total_records == 0:
         st.warning(
             f"⚠️ **تنبيه النظام:** مسار قاعدة البيانات الحالي هو (`{DB_PATH}`). "
             "إذا كانت هذه قاعدة بيانات جديدة أو تم تغيير المجلد، فل لن تظهر السجلات القديمة. تأكد أن ملف `documents.db` موجود في نفس مجلد البرنامج تماماً."
         )
 
-    # شريط حالة الأرشيف السريع
     st.markdown(
         f"""
         <div class="info-card">
@@ -893,7 +891,38 @@ if st.session_state.page == "الرئيسية":
         """,
         unsafe_allow_html=True
     )
-    # -----------------------------
+
+    # ============================================================
+    # قسم النسخ الاحتياطي والاستعادة (جديد)
+    # ============================================================
+    with st.expander("💾 إدارة النسخ الاحتياطي لقاعدة البيانات"):
+        col_bk1, col_bk2 = st.columns(2)
+        
+        with col_bk1:
+            st.write("<b>أخذ نسخة احتياطية:</b>", unsafe_allow_html=True)
+            if DB_PATH.exists():
+                with open(DB_PATH, "rb") as db_file:
+                    st.download_button(
+                        label="📥 تحميل نسخة قاعدة البيانات (.db)",
+                        data=db_file.read(),
+                        file_name=f"documents_backup_{date.today().strftime('%Y%m%d')}.db",
+                        mime="application/octet-stream"
+                    )
+            else:
+                st.warning("لا توجد قاعدة بيانات للتحميل حالياً.")
+
+        with col_bk2:
+            st.write("<b>استعادة قاعدة بيانات:</b>", unsafe_allow_html=True)
+            uploaded_db = st.file_uploader("اختر ملف قواعد بيانات سابقة (.db)", type=["db"])
+            if uploaded_db is not None:
+                if st.button("🔄 تأكيد استعادة القاعدة"):
+                    try:
+                        with open(DB_PATH, "wb") as f:
+                            f.write(uploaded_db.getbuffer())
+                        st.success("✅ تمت استعادة قاعدة البيانات بنجاح! يتم التحديث...")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ حدث خطأ أثناء الاستعادة: {e}")
 
     st.markdown(
         """
@@ -1014,10 +1043,6 @@ elif st.session_state.page in [
     with st.form(
         key=f"add_form_{doc_type}"
     ):
-
-        # ====================================================
-        # الرقم التلقائي
-        # ====================================================
 
         doc_number = get_next_document_number(doc_type)
 
@@ -1772,7 +1797,7 @@ elif st.session_state.page == "تأكيد الحذف":
 
         col1, col2 = st.columns(2)
 
-    with col1:
+        with col1:
 
             if st.button(
                 "🗑️ نعم، حذف المستند",
@@ -1800,7 +1825,7 @@ elif st.session_state.page == "تأكيد الحذف":
                     )
 
 
-    with col2:
+        with col2:
 
             if st.button(
                 "↩️ إلغاء"
