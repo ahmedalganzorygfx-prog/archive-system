@@ -376,6 +376,9 @@ if "page" not in st.session_state:
 if "search_query" not in st.session_state:
     st.session_state.search_query = ""
 
+if "view_filter" not in st.session_state:
+    st.session_state.view_filter = "الكل"
+
 
 # ============================================================
 # شاشة تسجيل الدخول
@@ -1019,7 +1022,6 @@ elif st.session_state.page in [
             height=100
         )
 
-        # [تعديل] دعم رفع ملفات PDF والصور بجميع أنواعها المطلوبة
         uploaded_file = st.file_uploader(
             "إرفاق ملف (PDF, PNG, JPG, JPEG)",
             type=["pdf", "png", "jpg", "jpeg"],
@@ -1119,7 +1121,9 @@ elif st.session_state.page in [
                     f"✅ تم حفظ المستند {doc_type} بنجاح."
                 )
 
-                st.session_state.page = "الرئيسية"
+                # التوجيه المباشر لعرض السجلات وتحديث الفلتر ليعرض النوع المضاف فوراً
+                st.session_state.view_filter = doc_type
+                st.session_state.page = "السجلات"
 
                 st.rerun()
 
@@ -1167,6 +1171,9 @@ elif st.session_state.page == "السجلات":
             default_filter
         )
     )
+
+    # تحديث الـ session_state عند تغيير الفلتر يدوياً
+    st.session_state.view_filter = selected_filter
 
     rows = get_documents(
         doc_type=selected_filter
@@ -1577,7 +1584,6 @@ elif st.session_state.page == "تعديل":
                     )
 
 
-                # [تعديل] استبدال الملف بجميع الصيغ المطلوبة
                 new_file = st.file_uploader(
                     "استبدال الملف (PDF, PNG, JPG, JPEG)",
                     type=["pdf", "png", "jpg", "jpeg"],
